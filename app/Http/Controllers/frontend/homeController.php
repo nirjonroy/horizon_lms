@@ -362,10 +362,31 @@ public function apply_now_form(Request $request){
 
     // Resolve selected university and program details
     $selectedUniversityName = null;
+    $selectedUniversityImage = null;
+    $resolveUniversity = function ($universityId) use (&$selectedUniversityName, &$selectedUniversityImage) {
+        if (! $universityId) {
+            return;
+        }
+
+        $university = DB::table('where_to_studies')
+            ->select('name', 'slider1')
+            ->where('id', $universityId)
+            ->first();
+
+        if (! $university) {
+            return;
+        }
+
+        $selectedUniversityName = $university->name;
+        if (! empty($university->slider1)) {
+            $selectedUniversityImage = filter_var($university->slider1, FILTER_VALIDATE_URL)
+                ? $university->slider1
+                : asset($university->slider1);
+        }
+    };
+
     if ($validatedData['selected_university_id'] ?? false) {
-        $selectedUniversityName = DB::table('where_to_studies')
-            ->where('id', $validatedData['selected_university_id'])
-            ->value('name');
+        $resolveUniversity($validatedData['selected_university_id']);
     }
 
     $selectedProgramName = $validatedData['selected_program'] ?? null;
@@ -376,8 +397,8 @@ public function apply_now_form(Request $request){
             $selectedProgramSlug = $fee->slug;
             $selectedProgramName = $fee->program;
             $validatedData['selected_university_id'] = $validatedData['selected_university_id'] ?? $fee->university_id;
-            if (!$selectedUniversityName && $fee->university_id) {
-                $selectedUniversityName = DB::table('where_to_studies')->where('id', $fee->university_id)->value('name');
+            if (! $selectedUniversityName && $fee->university_id) {
+                $resolveUniversity($fee->university_id);
             }
         }
     }
@@ -388,19 +409,35 @@ public function apply_now_form(Request $request){
     $validatedData['selected_program_name'] = $selectedProgramName;
     $validatedData['selected_program_slug'] = $selectedProgramSlug;
 
+    $siteInfo = siteInformation::first();
+    $logoUrl = null;
+    if (! empty(optional($siteInfo)->logo)) {
+        $logoUrl = filter_var($siteInfo->logo, FILTER_VALIDATE_URL)
+            ? $siteInfo->logo
+            : asset($siteInfo->logo);
+    }
+
+    $emailData = $validatedData;
+    $emailData['selected_university_image'] = $selectedUniversityImage;
+    $emailData['logo_url'] = $logoUrl;
+    $emailData['apply_url'] = $selectedProgramSlug
+        ? route('apply.now', $selectedProgramSlug)
+        : route('apply.now');
+    $emailData['consult_url'] = route('consultation.step1');
+
     $studentInformation = new studentInformation();
     $studentInformation->fill($validatedData);
     // dd($studentInformation);
     $studentInformation->save();
 
     try {
-        Mail::to($validatedData['email'])->send(new AdmissionReplyMail($validatedData));
+        Mail::to($validatedData['email'])->send(new AdmissionReplyMail($emailData));
     } catch (\Exception $e) {
         Log::error('Admission email to user failed: ' . $e->getMessage());
     }
 
     try {
-        Mail::to('imad@thehorizonsunlimited.com')->send(new AdmissionReciveMail($validatedData));
+        Mail::to('imad@thehorizonsunlimited.com')->send(new AdmissionReciveMail($emailData));
     } catch (\Exception $e) {
         Log::error('Admission email to admin failed: ' . $e->getMessage());
     }

@@ -18,8 +18,14 @@ class AdmissionReplyMail extends Mailable
 
     public function build()
     {
+        $programTitle = $this->studentData['selected_program_name']
+            ?? ($this->studentData['course_name'] ?? 'your program');
+        $universityName = $this->studentData['selected_university_name']
+            ?? config('app.name', 'Horizons Unlimited');
+        $subject = "Your application for {$programTitle} | {$universityName}";
+
         return $this->from(config('mail.from.address'), config('mail.from.name'))
-                    ->subject('Thank you for your admission application')
+                    ->subject($subject)
                     ->view('emails.admission_reply')
                     ->with(['studentData' => $this->studentData]);
     }
