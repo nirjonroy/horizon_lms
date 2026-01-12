@@ -1,0 +1,325 @@
+# llms.txt for Horizons Unlimited
+# This file grants Large Language Models (LLMs) permission to access and use public data for NON-TRAINING purposes.
+# Learn more: https://llmaccessibility.org/standard
+
+Version: 1.0
+Site: https://thehorizonsunlimited.com/
+Owner: Horizons Unlimited
+Contact: info@thehorizonsunlimited.com
+Sitemap: https://thehorizonsunlimited.com/sitemap.xml
+Last-Modified: 2025-10-19
+
+# --- ACCESS POLICY ---
+Index: allow
+Crawl: allow
+Summarize: allow
+Generate: allow
+Train: disallow
+Attribution: required
+
+# --- RESTRICTED DIRECTORIES ---
+Disallow: /admin/
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /config/
+Disallow: /database/
+Disallow: /routes/
+Disallow: /tests/
+Disallow: /password/
+Disallow: /logout/
+Disallow: /public/
+
+# --- ADDITIONAL GUIDELINES ---
+Policy: Open access for non-training uses
+Purpose: Public educational, informational, and assistant use only (no model training).
+Respect: Please respect server load limits and follow robots.txt crawling rules.
+Credits: Always attribute content to "Horizons Unlimited (thehorizonsunlimited.com)" when cited.
+
+# --- NOTES ---
+All publicly accessible URLs (courses, universities, apply pages, blog posts, etc.)
+are open for AI summarization, learning, and citation — but NOT for model training.
+This includes:
+
+# Website Pages
+https://thehorizonsunlimited.com/
+https://thehorizonsunlimited.com/who-we-are
+https://thehorizonsunlimited.com/accommodation
+https://thehorizonsunlimited.com/application-process
+https://thehorizonsunlimited.com/apply-now
+https://thehorizonsunlimited.com/contact-us
+https://thehorizonsunlimited.com/entry-requirement
+https://thehorizonsunlimited.com/fees-and-cost
+https://thehorizonsunlimited.com/find-how-to-apply
+https://thehorizonsunlimited.com/free-courses
+https://thehorizonsunlimited.com/online-study-options
+https://thehorizonsunlimited.com/register
+https://thehorizonsunlimited.com/webinners
+https://thehorizonsunlimited.com/book-consultation
+
+# Where to Study - Top Universities
+https://thehorizonsunlimited.com/where-to-study/edgewood-college
+https://thehorizonsunlimited.com/where-to-study/esgci-ecole-superieure-de-genie-informatique
+https://thehorizonsunlimited.com/where-to-study/golden-gate-university
+https://thehorizonsunlimited.com/where-to-study/liverpool-business-school
+https://thehorizonsunlimited.com/where-to-study/liverpool-john-moores-university
+https://thehorizonsunlimited.com/where-to-study/paris-school-of-business
+https://thehorizonsunlimited.com/where-to-study/rushford-business-school
+https://thehorizonsunlimited.com/where-to-study/swiss-school-of-business-and-management-ssbm
+
+# Blog
+https://thehorizonsunlimited.com/blog
+https://thehorizonsunlimited.com/blog/choose-right-university
+https://thehorizonsunlimited.com/blog/emba-from-ssbm-horizons-unlimited
+https://thehorizonsunlimited.com/blog/ssbm-geneva-dba-program
+https://thehorizonsunlimited.com/blog/ssbm-geneva-european-university-for-online-study-2025
+https://thehorizonsunlimited.com/blog/study-abroad-made-easy-with-horizons-unlimited
+https://thehorizonsunlimited.com/blog/top-5-accredited-online-mba-programs-middle-east-students-2025
+https://thehorizonsunlimited.com/blog/trusted-online-education-consultation-and-applications
+
+# Online Courses
+https://thehorizonsunlimited.com/courses
+https://thehorizonsunlimited.com/courses/1-month-access
+https://thehorizonsunlimited.com/courses/1-year-access
+https://thehorizonsunlimited.com/courses/1-year-access-library
+https://thehorizonsunlimited.com/courses/450-marketing-courses
+https://thehorizonsunlimited.com/courses/7-days-access
+https://thehorizonsunlimited.com/courses/accounting-and-business-basics
+https://thehorizonsunlimited.com/courses/adobe-after-effects-2020
+https://thehorizonsunlimited.com/courses/adobe-audition-2020
+https://thehorizonsunlimited.com/courses/adobe-behance
+https://thehorizonsunlimited.com/courses/adobe-dreamweaver
+https://thehorizonsunlimited.com/courses/adobe-flash-animate
+https://thehorizonsunlimited.com/courses/adobe-fonts
+https://thehorizonsunlimited.com/courses/adobe-illustrator-2019
+https://thehorizonsunlimited.com/courses/adobe-illustrator-2022
+https://thehorizonsunlimited.com/courses/adobe-indesign-2022
+https://thehorizonsunlimited.com/courses/adobe-lightroom
+https://thehorizonsunlimited.com/courses/adobe-photoshop-2019
+https://thehorizonsunlimited.com/courses/adobe-portfolio
+https://thehorizonsunlimited.com/courses/adobe-premier-pro-2019
+https://thehorizonsunlimited.com/courses/adobe-premiere-pro
+https://thehorizonsunlimited.com/courses/adobe-premiere-rush
+https://thehorizonsunlimited.com/courses/adobe-spark
+https://thehorizonsunlimited.com/courses/adobe-stock
+https://thehorizonsunlimited.com/courses/adobe-xd-2022
+https://thehorizonsunlimited.com/courses/agile-365-project-management
+https://thehorizonsunlimited.com/courses/agile-scrum
+https://thehorizonsunlimited.com/courses/ai-and-operations-management
+https://thehorizonsunlimited.com/courses/ai-ethics-fundamentals
+https://thehorizonsunlimited.com/courses/ai-fundamentals
+https://thehorizonsunlimited.com/courses/ai-impact-on-workforce
+https://thehorizonsunlimited.com/courses/ai-in-cybersecurity
+https://thehorizonsunlimited.com/courses/ai-powered-talent-acquisition-upskilling-revolutionized
+https://thehorizonsunlimited.com/courses/amazon-web-services-beginner
+https://thehorizonsunlimited.com/courses/animation-training-introduction
+https://thehorizonsunlimited.com/courses/apache-kafka-fundamentals
+https://thehorizonsunlimited.com/courses/aws-certified-cloud-practitioner
+https://thehorizonsunlimited.com/courses/aws-redshift-fundamentals
+https://thehorizonsunlimited.com/courses/az-900-azure-fundamentals-certification
+https://thehorizonsunlimited.com/courses/blockchain-bootcamp-and-certification-prep-training-series
+https://thehorizonsunlimited.com/courses/certificate-of-cloud-security-knowledge-ccsk
+https://thehorizonsunlimited.com/courses/certified-associate-in-project-management-capm-6th-edition
+https://thehorizonsunlimited.com/courses/certified-associate-project-manager-capm-v7-fundamentals
+https://thehorizonsunlimited.com/courses/certified-blockchain-developer-hyperledger-cbdh
+https://thehorizonsunlimited.com/courses/certified-blockchain-solutions-architect-cbsa
+https://thehorizonsunlimited.com/courses/certified-cloud-security-professional-ccsp
+https://thehorizonsunlimited.com/courses/certified-ethical-hacker-ceh-v13
+https://thehorizonsunlimited.com/courses/certified-ethical-hacker-ceh-version-11-ecc-312-50-part-1-3
+https://thehorizonsunlimited.com/courses/certified-ethical-hacker-training-for-certification-ceh-v12
+https://thehorizonsunlimited.com/courses/certified-information-security-manager-cism
+https://thehorizonsunlimited.com/courses/certified-information-systems-auditor-cisa
+https://thehorizonsunlimited.com/courses/certified-information-systems-security-professional-cissp
+https://thehorizonsunlimited.com/courses/certified-kubernetes-application-developer-ckad
+https://thehorizonsunlimited.com/courses/chatgpt-and-ai-business-fundamentals
+https://thehorizonsunlimited.com/courses/chfi-computer-hacking-forensics-investigator-ecc-312-49
+https://thehorizonsunlimited.com/courses/cisco-200-355-wireless-network-fundamentals
+https://thehorizonsunlimited.com/courses/cisco-210-060-collaboration-devices
+https://thehorizonsunlimited.com/courses/cisco-300-410-enarsi
+https://thehorizonsunlimited.com/courses/cisco-ccna-200-301
+https://thehorizonsunlimited.com/courses/cisco-ccna-v1-200-301
+https://thehorizonsunlimited.com/courses/cisco-ccnp-350-401-cisco-enterprise-network-core-technologies
+https://thehorizonsunlimited.com/courses/cisco-ccnp-troubleshooting-ip-networks-300-135
+https://thehorizonsunlimited.com/courses/cisco-certified-design-associate-640-864
+https://thehorizonsunlimited.com/courses/cisco-iins-210-260-ccna-security
+https://thehorizonsunlimited.com/courses/cisco-ip-routing-300-101
+https://thehorizonsunlimited.com/courses/cisco-routing-and-switching-300-115
+https://thehorizonsunlimited.com/courses/cisco-video-network-devices-210-065
+https://thehorizonsunlimited.com/courses/cisco-voice-640-461
+https://thehorizonsunlimited.com/courses/cloud-computing-course-series
+https://thehorizonsunlimited.com/courses/cloud-computing-position-cloud-interview-ace
+https://thehorizonsunlimited.com/courses/cloud-transformation-with-microsoft-cloud-adoption-framework
+https://thehorizonsunlimited.com/courses/coaching-and-developing-it-talent
+https://thehorizonsunlimited.com/courses/compliance-in-it-landscape
+https://thehorizonsunlimited.com/courses/comptia-a-plus-1200-series
+https://thehorizonsunlimited.com/courses/comptia-a-plus-220-1001-core-1-and-220-1002-core-2
+https://thehorizonsunlimited.com/courses/comptia-a-plus-220-1101-and-220-1102-certification
+https://thehorizonsunlimited.com/courses/comptia-advanced-security-practitioner-casp-cas-003
+https://thehorizonsunlimited.com/courses/comptia-cloud
+https://thehorizonsunlimited.com/courses/comptia-cloud-cv0-004
+https://thehorizonsunlimited.com/courses/comptia-cloud-essentials-clo-002
+https://thehorizonsunlimited.com/courses/comptia-cloud-plus-cv0-003-certification
+https://thehorizonsunlimited.com/courses/comptia-cloud-plus-cvo-002
+https://thehorizonsunlimited.com/courses/comptia-cysa-plus-cs0-002-cybersecurity-analyst
+https://thehorizonsunlimited.com/courses/comptia-cysa-plus-cs0-003
+https://thehorizonsunlimited.com/courses/comptia-data-plus-dao-001
+https://thehorizonsunlimited.com/courses/comptia-it-fundamentals-fc0-u61-itf-plus
+https://thehorizonsunlimited.com/courses/comptia-linux-certification-lx0-101-lx0-102
+https://thehorizonsunlimited.com/courses/comptia-linux-plus-xk0-004
+https://thehorizonsunlimited.com/courses/comptia-linux-plus-xk0-005-certification
+https://thehorizonsunlimited.com/courses/comptia-mb0-001-mobility-plus
+https://thehorizonsunlimited.com/courses/comptia-network-plus-n10-008-certification
+https://thehorizonsunlimited.com/courses/comptia-network-plus-n10-009-certification
+https://thehorizonsunlimited.com/courses/comptia-pentest-plus-pt0-001
+https://thehorizonsunlimited.com/courses/comptia-pentest-plus-pt0-003
+https://thehorizonsunlimited.com/courses/comptia-security-plus-sy0-701
+https://thehorizonsunlimited.com/courses/comptia-security-plus-training-sy0-601-certification
+https://thehorizonsunlimited.com/courses/comptia-securityx-cas-005
+https://thehorizonsunlimited.com/courses/comptia-tech-plus-fc0-u71-certification-preperation
+https://thehorizonsunlimited.com/courses/course-website-template
+https://thehorizonsunlimited.com/courses/css-training
+https://thehorizonsunlimited.com/courses/cyberark-fundamentals
+https://thehorizonsunlimited.com/courses/cybersecurity-awareness-and-prevention-training
+https://thehorizonsunlimited.com/courses/cybersecurity-essentials
+https://thehorizonsunlimited.com/courses/data-security-compliance
+https://thehorizonsunlimited.com/courses/devops-fundamentals
+https://thehorizonsunlimited.com/courses/emotional-intelligence-for-it-professionals
+https://thehorizonsunlimited.com/courses/enterprise-blockchain-bootcamp-for-solutions-engineers
+https://thehorizonsunlimited.com/courses/ertified-kubernetes-administrator-cka
+https://thehorizonsunlimited.com/courses/exin-cloud-computing-training
+https://thehorizonsunlimited.com/courses/finops-fundamentals
+https://thehorizonsunlimited.com/courses/foundations-of-it-leadership
+https://thehorizonsunlimited.com/courses/fundamentals-of-the-software-development-lifecycle-sdlc
+https://thehorizonsunlimited.com/courses/generative-ai-for-everyone
+https://thehorizonsunlimited.com/courses/google-analytics
+https://thehorizonsunlimited.com/courses/google-analytics-4
+https://thehorizonsunlimited.com/courses/google-and-youtube-marketing
+https://thehorizonsunlimited.com/courses/google-cloud-digital-leader-certification
+https://thehorizonsunlimited.com/courses/google-cloud-platform-gcp-certification
+https://thehorizonsunlimited.com/courses/google-devops-training-series
+https://thehorizonsunlimited.com/courses/harassment-in-the-workplace-compliance-training
+https://thehorizonsunlimited.com/courses/health-and-fitness
+https://thehorizonsunlimited.com/courses/hipaa-training-course-fraud-and-abuse
+https://thehorizonsunlimited.com/courses/html-css-and-javascript
+https://thehorizonsunlimited.com/courses/html5
+https://thehorizonsunlimited.com/courses/html5-css3-web-design-fundamentals-with-javascript
+https://thehorizonsunlimited.com/courses/isc2-certified-in-cybersecurity
+https://thehorizonsunlimited.com/courses/it-and-cyber-technology-bundle
+https://thehorizonsunlimited.com/courses/it-job-hunt-mastery
+https://thehorizonsunlimited.com/courses/it-support-with-ai
+https://thehorizonsunlimited.com/courses/javascript-fundamentals
+https://thehorizonsunlimited.com/courses/kubernetes-containerizing-applications-cloud
+https://thehorizonsunlimited.com/courses/leading-digital-transformation-in-organizations
+https://thehorizonsunlimited.com/courses/marketing-tools-and-tips-for-success
+https://thehorizonsunlimited.com/courses/master-comptia-certification-training-12-comptia-courses
+https://thehorizonsunlimited.com/courses/medical-coding-and-billing-10
+https://thehorizonsunlimited.com/courses/medical-coding-and-billing-icd-10-and-icd-11
+https://thehorizonsunlimited.com/courses/mega-adobe-creative-cloud-training-series-15-courses
+https://thehorizonsunlimited.com/courses/microsoft-365-fundamentals-ms-900
+https://thehorizonsunlimited.com/courses/microsoft-70-243-system-center-2012-configuration-manager-sccm
+https://thehorizonsunlimited.com/courses/microsoft-70-246-monitoring-and-operating-private-cloud
+https://thehorizonsunlimited.com/courses/microsoft-70-247
+https://thehorizonsunlimited.com/courses/microsoft-70-331-core-solutions-of-sharepoint-server
+https://thehorizonsunlimited.com/courses/microsoft-70-332-advanced-solutions-of-sharepoint-server
+https://thehorizonsunlimited.com/courses/microsoft-70-337-mcse-communication-lync-server
+https://thehorizonsunlimited.com/courses/microsoft-70-341-core-solutions-exchange-server
+https://thehorizonsunlimited.com/courses/microsoft-70-342-advanced-solutions-exchange-server
+https://thehorizonsunlimited.com/courses/microsoft-70-346-managing-office-365
+https://thehorizonsunlimited.com/courses/microsoft-70-347-office-365-services
+https://thehorizonsunlimited.com/courses/microsoft-70-410-installing-and-configuring-windows-server
+https://thehorizonsunlimited.com/courses/microsoft-70-411-administering-windows-server
+https://thehorizonsunlimited.com/courses/microsoft-70-412-configuring-advanced-windows-server
+https://thehorizonsunlimited.com/courses/microsoft-70-413-designing-and-implementing-server-infrastructure
+https://thehorizonsunlimited.com/courses/microsoft-70-414-advanced-server-infrastructure
+https://thehorizonsunlimited.com/courses/microsoft-70-432-sql-server-2008
+https://thehorizonsunlimited.com/courses/microsoft-70-448-microsoft-sql-server-2008-business-intelligence-development
+https://thehorizonsunlimited.com/courses/microsoft-70-461-querying-sql-server
+https://thehorizonsunlimited.com/courses/microsoft-70-462-administering-sql-server-databases
+https://thehorizonsunlimited.com/courses/microsoft-70-463-implementing-data-warehouse-with-sql-server
+https://thehorizonsunlimited.com/courses/microsoft-70-464-developing-microsoft-sql-server-databases
+https://thehorizonsunlimited.com/courses/microsoft-70-465-designing-database-solutions-for-microsoft-sql-server
+https://thehorizonsunlimited.com/courses/microsoft-70-466-implementing-data-models
+https://thehorizonsunlimited.com/courses/microsoft-70-467-designing-business-intelligence-solutions-with-sql-server
+https://thehorizonsunlimited.com/courses/microsoft-70-480-programming-in-html5-javascript-css3
+https://thehorizonsunlimited.com/courses/microsoft-70-487-developing-microsoft-azure-and-web-services
+https://thehorizonsunlimited.com/courses/microsoft-70-488-developing-sharepoint-server-core-solutions
+https://thehorizonsunlimited.com/courses/microsoft-70-489-developing-sharepoint-advanced-solutions
+https://thehorizonsunlimited.com/courses/microsoft-70-640--windows-server-2008-active-directory
+https://thehorizonsunlimited.com/courses/microsoft-70-642-windows-server-2008-network-infrastructure
+https://thehorizonsunlimited.com/courses/microsoft-70-646-windows-server-2008-administrator
+https://thehorizonsunlimited.com/courses/microsoft-70-680-ts-configuring-windows-7
+https://thehorizonsunlimited.com/courses/microsoft-70-685-pro-windows-7
+https://thehorizonsunlimited.com/courses/microsoft-70-686-pro-windows-7-enterprise-desktop-administrator
+https://thehorizonsunlimited.com/courses/microsoft-70-687-configuring-windows-8
+https://thehorizonsunlimited.com/courses/microsoft-70-688-managing-and-maintaining-windows-8
+https://thehorizonsunlimited.com/courses/microsoft-70-697-configuring-windows-devices-windows-10
+https://thehorizonsunlimited.com/courses/microsoft-70-698-windows-10
+https://thehorizonsunlimited.com/courses/microsoft-70-740-windows-server
+https://thehorizonsunlimited.com/courses/microsoft-70-741-windows-server
+https://thehorizonsunlimited.com/courses/microsoft-70-742-windows-server
+https://thehorizonsunlimited.com/courses/microsoft-70-764-sql-server-2016-administration
+https://thehorizonsunlimited.com/courses/microsoft-70-765-provisioning-sql-databases
+https://thehorizonsunlimited.com/courses/microsoft-access-2016-training
+https://thehorizonsunlimited.com/courses/microsoft-asp-net-mvc
+https://thehorizonsunlimited.com/courses/microsoft-az-203-developing-solutions
+https://thehorizonsunlimited.com/courses/microsoft-azure-administrator-az-104
+https://thehorizonsunlimited.com/courses/microsoft-excel-2016
+https://thehorizonsunlimited.com/courses/microsoft-excel-2019
+https://thehorizonsunlimited.com/courses/microsoft-licensing-essentials
+https://thehorizonsunlimited.com/courses/microsoft-md-100-certification-windows-10
+https://thehorizonsunlimited.com/courses/microsoft-md-101-managing-modern-desktops
+https://thehorizonsunlimited.com/courses/microsoft-mta-98-365-certification
+https://thehorizonsunlimited.com/courses/microsoft-mta-98-366-certification
+https://thehorizonsunlimited.com/courses/microsoft-mta-98-367-certification
+https://thehorizonsunlimited.com/courses/microsoft-net-45-programming-with-html-5
+https://thehorizonsunlimited.com/courses/microsoft-office-2016-certification-training-bundle
+https://thehorizonsunlimited.com/courses/microsoft-office-365-online-versions
+https://thehorizonsunlimited.com/courses/microsoft-outlook-2016
+https://thehorizonsunlimited.com/courses/microsoft-power-bi
+https://thehorizonsunlimited.com/courses/microsoft-powerpoint-2016
+https://thehorizonsunlimited.com/courses/microsoft-sc-900-security-compliance-and-identity-fundamentals
+https://thehorizonsunlimited.com/courses/microsoft-sql-big-data
+https://thehorizonsunlimited.com/courses/microsoft-sql-server-2019
+https://thehorizonsunlimited.com/courses/microsoft-sql-server-2019-data-analysis
+https://thehorizonsunlimited.com/courses/microsoft-sql-server-2019-database-design
+https://thehorizonsunlimited.com/courses/microsoft-sql-server-administration-2019
+https://thehorizonsunlimited.com/courses/microsoft-sql-server-analysis-services-ssas
+https://thehorizonsunlimited.com/courses/microsoft-sql-server-training-series-16-courses
+https://thehorizonsunlimited.com/courses/microsoft-word-2016
+https://thehorizonsunlimited.com/courses/microsoft-word-2019
+https://thehorizonsunlimited.com/courses/navigating-change-management-in-it-teams
+https://thehorizonsunlimited.com/courses/online-cybersecurity-training-14-courses
+https://thehorizonsunlimited.com/courses/osha-training
+https://thehorizonsunlimited.com/courses/owasp-top-10-essential-web-application-security-risks
+https://thehorizonsunlimited.com/courses/power-skills-for-it-professionals
+https://thehorizonsunlimited.com/courses/practical-agile-testing-qa-and-agile-workflows
+https://thehorizonsunlimited.com/courses/project-management-essentials
+https://thehorizonsunlimited.com/courses/project-management-professional-pmi-pmp-v7
+https://thehorizonsunlimited.com/courses/project-management-professional-pmp-certification-prep-6th-edition
+https://thehorizonsunlimited.com/courses/python-programming
+https://thehorizonsunlimited.com/courses/quickbooks-online-training-2020
+https://thehorizonsunlimited.com/courses/quickbooks-point-of-sale-pos
+https://thehorizonsunlimited.com/courses/risk-management-professional-pmi-rmp
+https://thehorizonsunlimited.com/courses/salesforce-power-user-course
+https://thehorizonsunlimited.com/courses/scrum-master-course
+https://thehorizonsunlimited.com/courses/self-help-courses
+https://thehorizonsunlimited.com/courses/six-sigma-black-belt-training
+https://thehorizonsunlimited.com/courses/six-sigma-green-belt
+https://thehorizonsunlimited.com/courses/six-sigma-white-belt-foundations
+https://thehorizonsunlimited.com/courses/social-media-in-workplace
+https://thehorizonsunlimited.com/courses/social-media-marketing-2020
+https://thehorizonsunlimited.com/courses/social-media-marketing-basics
+https://thehorizonsunlimited.com/courses/sprint-planning-and-meetings-for-agile-teams
+https://thehorizonsunlimited.com/courses/starting-your-own-youtube-channel-101
+https://thehorizonsunlimited.com/courses/tech-support-to-team-lead-advancing-into-it-support-management
+https://thehorizonsunlimited.com/courses/ultimate-project-management-training-series-9-courses
+https://thehorizonsunlimited.com/courses/unix-administration-basics
+https://thehorizonsunlimited.com/courses/vmware-vsphere-6-fundamentals
+https://thehorizonsunlimited.com/courses/web-design-bundle
+https://thehorizonsunlimited.com/courses/windows-10-power-user
+https://thehorizonsunlimited.com/courses/xp-agile-training-course
+
+# Legal Pages
+https://thehorizonsunlimited.com/page/privacy-policy
+https://thehorizonsunlimited.com/page/terms-of-service
+
+# --- END OF FILE ---

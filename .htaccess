@@ -1,0 +1,15 @@
+# Laravel at docroot; serve front controller in /public
+Options -Indexes +SymLinksIfOwnerMatch
+RewriteEngine On
+
+# If the requested path is a real file or directory under /public, serve it
+RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/public/$1 -d
+RewriteRule ^(.*)$ public/$1 [L]
+
+# Pass the Authorization header (some Laravel auth needs this)
+RewriteCond %{HTTP:Authorization} .
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+# Otherwise, send everything to the front controller
+RewriteRule ^ public/index.php [L]
