@@ -276,24 +276,89 @@ class homeController extends Controller
    
 
 public function apply_now_form(Request $request){
+    $currentYear = (int) now()->year;
     $rules = [
-        'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
-        'surname' => 'required|string|max:255|regex:/^[a-zA-Z\s]+$/',
+        'full_name' => 'required|string|max:255',
+        'first_name' => 'required|string|max:255|regex:/^[a-zA-Z\\s]+$/',
+        'middle_name' => 'required_if:has_middle_name,yes|string|max:255|regex:/^[a-zA-Z\\s]+$/',
+        'has_middle_name' => 'required|in:yes,no',
+        'surname' => 'required|string|max:255|regex:/^[a-zA-Z\\s]+$/',
         'email' => 'required|email|max:255',
         'country_code' => 'required|string',
         'phone' => 'required|string|min:8|max:20',
+        'dob_month' => 'required|integer|min:1|max:12',
+        'dob_day' => 'required|integer|min:1|max:31',
+        'dob_year' => 'required|integer|min:1900|max:' . $currentYear,
+        'gender' => 'required|in:Male,Female,Non-Binary,Non-Conforming,Prefer not to respond',
+        'city' => 'required|string|max:255',
         'nationality' => 'required|string|max:255',
         'country_of_residence' => 'required|string|max:255',
-        'course_and_degree' => '',
-        'subject_of_interest' => '',
+        'subject_of_interest' => 'required|string|max:255',
+        'has_bachelors_degree' => 'required|in:yes,no',
+        'graduation_degree' => 'required_if:has_bachelors_degree,yes|string|max:255',
+        'graduation_college' => 'required_if:has_bachelors_degree,yes|string|max:255',
+        'graduation_month' => 'required_if:has_bachelors_degree,yes|integer|min:1|max:12',
+        'graduation_year' => 'required_if:has_bachelors_degree,yes|integer|min:1900|max:' . $currentYear,
+        'graduation_marks' => 'required_if:has_bachelors_degree,yes|string|max:50',
+        'has_masters_degree' => 'required|in:yes,no',
+        'work_experience_years' => 'required|integer|min:0|max:60',
+        'company_name' => 'required|string|max:255',
+        'industry' => 'required|string|max:255',
+        'job_role' => 'required|string|max:255',
+        'course_and_degree' => 'required|string|max:255',
         'course_name' => 'nullable|string|max:255',
         'preferred_session' => 'required|string|max:255',
-        'comments' => 'required|string',
+        'referral_code' => 'nullable|string|max:255',
+        'comments' => 'nullable|string|max:1000',
+        'disclaimer_accepted' => 'accepted',
         'selected_university_id' => 'required|integer|exists:where_to_studies,id',
         'selected_program' => 'required|string|max:255',
     ];
 
     $validatedData = $request->validate($rules);
+
+    if (($validatedData['has_middle_name'] ?? 'no') !== 'yes') {
+        $validatedData['middle_name'] = null;
+    }
+
+    if (($validatedData['has_bachelors_degree'] ?? 'no') !== 'yes') {
+        $validatedData['graduation_degree'] = null;
+        $validatedData['graduation_college'] = null;
+        $validatedData['graduation_month'] = null;
+        $validatedData['graduation_year'] = null;
+        $validatedData['graduation_marks'] = null;
+    }
+    $monthNames = [
+        1 => 'January',
+        2 => 'February',
+        3 => 'March',
+        4 => 'April',
+        5 => 'May',
+        6 => 'June',
+        7 => 'July',
+        8 => 'August',
+        9 => 'September',
+        10 => 'October',
+        11 => 'November',
+        12 => 'December',
+    ];
+    if (!empty($validatedData['graduation_month'])) {
+        $gradMonth = (int) $validatedData['graduation_month'];
+        $validatedData['graduation_month'] = $monthNames[$gradMonth] ?? $validatedData['graduation_month'];
+    }
+
+    $dateOfBirth = null;
+    try {
+        $dateOfBirth = Carbon::createFromDate(
+            (int) $validatedData['dob_year'],
+            (int) $validatedData['dob_month'],
+            (int) $validatedData['dob_day']
+        )->format('F j, Y');
+    } catch (\Exception $e) {
+        $dateOfBirth = null;
+    }
+    $validatedData['date_of_birth'] = $dateOfBirth;
+    $validatedData['disclaimer_accepted'] = true;
 
     // Resolve selected university and program details
     $selectedUniversityName = null;

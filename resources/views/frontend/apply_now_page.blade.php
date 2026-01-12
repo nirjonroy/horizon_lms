@@ -39,6 +39,25 @@
         'Spring ( January - April )',
         'Summer ( May - July )',
     ];
+    $monthOptions = [
+        1 => 'January',
+        2 => 'February',
+        3 => 'March',
+        4 => 'April',
+        5 => 'May',
+        6 => 'June',
+        7 => 'July',
+        8 => 'August',
+        9 => 'September',
+        10 => 'October',
+        11 => 'November',
+        12 => 'December',
+    ];
+    $dayOptions = range(1, 31);
+    $genderOptions = ['Male', 'Female', 'Non-Binary', 'Non-Conforming', 'Prefer not to respond'];
+    $degreeOptions = ['BA', 'BSc', 'BBA', 'BCom', 'BE', 'BS', 'MBA', 'MSc', 'Other'];
+    $industryOptions = ['Technology', 'Finance', 'Healthcare', 'Education', 'Manufacturing', 'Retail', 'Consulting', 'Government', 'Other'];
+    $jobRoleOptions = ['Manager', 'Analyst', 'Engineer', 'Consultant', 'Developer', 'Designer', 'Executive', 'Other'];
     $selectedFee = $selectedFee ?? null;
     $selectedProgramKey = old('selected_program', $selectedProgramSlug ?? null);
     $selectedProgram = $programOptions->firstWhere('slug', $selectedProgramKey)
@@ -677,11 +696,41 @@
                             <div class="col-12">
                                 <h3 class="apply-section-title mb-0">Personal information</h3>
                             </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Full Name (as per National ID)</label>
+                                <input type="text" name="full_name" value="{{ old('full_name') }}" class="form-control{{ $errors->has('full_name') ? ' is-invalid' : '' }}" placeholder="Enter your full name" required>
+                                @if($errors->has('full_name'))
+                                    <div class="invalid-feedback">{{ $errors->first('full_name') }}</div>
+                                @endif
+                            </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">First Name</label>
                                 <input type="text" name="first_name" value="{{ old('first_name') }}" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="Enter your name" required>
                                 @if($errors->has('first_name'))
                                     <div class="invalid-feedback">{{ $errors->first('first_name') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Do you have a Middle Name?</label>
+                                <div class="apply-toggle">
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="has_middle_name" id="has_middle_name_yes" value="yes" {{ old('has_middle_name') === 'yes' ? 'checked' : '' }} required>
+                                        <span><strong>Yes</strong></span>
+                                    </label>
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="has_middle_name" id="has_middle_name_no" value="no" {{ old('has_middle_name', 'no') === 'no' ? 'checked' : '' }}>
+                                        <span><strong>No</strong></span>
+                                    </label>
+                                </div>
+                                @if($errors->has('has_middle_name'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('has_middle_name') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-md-6" id="middle-name-field">
+                                <label class="form-label fw-semibold">Middle Name</label>
+                                <input type="text" name="middle_name" id="middle_name" value="{{ old('middle_name') }}" class="form-control{{ $errors->has('middle_name') ? ' is-invalid' : '' }}" placeholder="Enter your middle name">
+                                @if($errors->has('middle_name'))
+                                    <div class="invalid-feedback">{{ $errors->first('middle_name') }}</div>
                                 @endif
                             </div>
                             <div class="col-md-6">
@@ -717,8 +766,56 @@
                                     <div class="invalid-feedback d-block">{{ $errors->first('phone') }}</div>
                                 @endif
                             </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Date of Birth</label>
+                                <div class="row g-3">
+                                    <div class="col-md-4">
+                                        <select name="dob_month" class="form-select{{ $errors->has('dob_month') ? ' is-invalid' : '' }}" required>
+                                            <option value="" disabled {{ old('dob_month') ? '' : 'selected' }}>Month</option>
+                                            @foreach ($monthOptions as $value => $label)
+                                                <option value="{{ $value }}" {{ (int) old('dob_month') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <select name="dob_day" class="form-select{{ $errors->has('dob_day') ? ' is-invalid' : '' }}" required>
+                                            <option value="" disabled {{ old('dob_day') ? '' : 'selected' }}>Day</option>
+                                            @foreach ($dayOptions as $day)
+                                                <option value="{{ $day }}" {{ (int) old('dob_day') === $day ? 'selected' : '' }}>{{ $day }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <input type="number" name="dob_year" value="{{ old('dob_year') }}" class="form-control{{ $errors->has('dob_year') ? ' is-invalid' : '' }}" placeholder="Year" min="1900" max="{{ date('Y') }}" required>
+                                    </div>
+                                </div>
+                                @if($errors->has('dob_month') || $errors->has('dob_day') || $errors->has('dob_year'))
+                                    <div class="invalid-feedback d-block">Please enter a valid date of birth.</div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Gender</label>
+                                <div class="apply-toggle">
+                                    @foreach ($genderOptions as $gender)
+                                        <label class="apply-toggle-option">
+                                            <input class="form-check-input" type="radio" name="gender" value="{{ $gender }}" {{ old('gender') === $gender ? 'checked' : '' }} {{ $loop->first ? 'required' : '' }}>
+                                            <span><strong>{{ $gender }}</strong></span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @if($errors->has('gender'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('gender') }}</div>
+                                @endif
+                            </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold">Nationality</label>
+                                <label class="form-label fw-semibold">City</label>
+                                <input type="text" name="city" value="{{ old('city') }}" class="form-control{{ $errors->has('city') ? ' is-invalid' : '' }}" placeholder="Enter your city" required>
+                                @if($errors->has('city'))
+                                    <div class="invalid-feedback">{{ $errors->first('city') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Country of Citizenship</label>
                                 <select name="nationality" class="form-select select2-country{{ $errors->has('nationality') ? ' is-invalid' : '' }}" data-placeholder="Please select" required>
                                     <option value="" disabled {{ old('nationality') ? '' : 'selected' }}>Please select</option>
                                     @include('frontend.partials.country_options', ['selectedCountry' => old('nationality')])
@@ -741,7 +838,151 @@
                                 <hr>
                             </div>
                             <div class="col-12">
-                                <h3 class="apply-section-title mb-0">Study preferences</h3>
+                                <h3 class="apply-section-title mb-0">Education background</h3>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Select your concentration</label>
+                                <p class="text-muted small mb-2">Note: The concentration selected is final and will not change, even if you rejoin a new batch after a stop-out.</p>
+                                <select name="subject_of_interest" class="form-select{{ $errors->has('subject_of_interest') ? ' is-invalid' : '' }}" required>
+                                    <option value="" disabled {{ old('subject_of_interest') ? '' : 'selected' }}>Please select</option>
+                                    @foreach ($subjectOptions as $subject)
+                                        <option value="{{ $subject }}" {{ old('subject_of_interest') === $subject ? 'selected' : '' }}>{{ $subject }}</option>
+                                    @endforeach
+                                </select>
+                                @if($errors->has('subject_of_interest'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('subject_of_interest') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Do you have a Bachelor's Degree?</label>
+                                <div class="apply-toggle">
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="has_bachelors_degree" value="yes" {{ old('has_bachelors_degree') === 'yes' ? 'checked' : '' }} required>
+                                        <span><strong>Yes</strong></span>
+                                    </label>
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="has_bachelors_degree" value="no" {{ old('has_bachelors_degree', 'no') === 'no' ? 'checked' : '' }}>
+                                        <span><strong>No</strong></span>
+                                    </label>
+                                </div>
+                                @if($errors->has('has_bachelors_degree'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('has_bachelors_degree') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-12" id="bachelors-fields">
+                                <div class="row g-4">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Graduation Degree</label>
+                                        <select name="graduation_degree" class="form-select{{ $errors->has('graduation_degree') ? ' is-invalid' : '' }}">
+                                            <option value="" disabled {{ old('graduation_degree') ? '' : 'selected' }}>Select degree</option>
+                                            @foreach ($degreeOptions as $degree)
+                                                <option value="{{ $degree }}" {{ old('graduation_degree') === $degree ? 'selected' : '' }}>{{ $degree }}</option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('graduation_degree'))
+                                            <div class="invalid-feedback d-block">{{ $errors->first('graduation_degree') }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Select Graduation College</label>
+                                        <input type="text" name="graduation_college" value="{{ old('graduation_college') }}" class="form-control{{ $errors->has('graduation_college') ? ' is-invalid' : '' }}" placeholder="Enter your college or university">
+                                        @if($errors->has('graduation_college'))
+                                            <div class="invalid-feedback">{{ $errors->first('graduation_college') }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Graduation Month</label>
+                                        <select name="graduation_month" class="form-select{{ $errors->has('graduation_month') ? ' is-invalid' : '' }}">
+                                            <option value="" disabled {{ old('graduation_month') ? '' : 'selected' }}>Select month</option>
+                                            @foreach ($monthOptions as $value => $label)
+                                                <option value="{{ $value }}" {{ (int) old('graduation_month') === $value ? 'selected' : '' }}>{{ $label }}</option>
+                                            @endforeach
+                                        </select>
+                                        @if($errors->has('graduation_month'))
+                                            <div class="invalid-feedback d-block">{{ $errors->first('graduation_month') }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Graduation Year</label>
+                                        <input type="number" name="graduation_year" value="{{ old('graduation_year') }}" class="form-control{{ $errors->has('graduation_year') ? ' is-invalid' : '' }}" placeholder="Year" min="1950" max="{{ date('Y') }}">
+                                        @if($errors->has('graduation_year'))
+                                            <div class="invalid-feedback">{{ $errors->first('graduation_year') }}</div>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-semibold">Marks Scored in Graduation</label>
+                                        <input type="text" name="graduation_marks" value="{{ old('graduation_marks') }}" class="form-control{{ $errors->has('graduation_marks') ? ' is-invalid' : '' }}" placeholder="Enter marks or GPA">
+                                        @if($errors->has('graduation_marks'))
+                                            <div class="invalid-feedback">{{ $errors->first('graduation_marks') }}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Do you have a Master's Degree?</label>
+                                <div class="apply-toggle">
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="has_masters_degree" value="yes" {{ old('has_masters_degree') === 'yes' ? 'checked' : '' }} required>
+                                        <span><strong>Yes</strong></span>
+                                    </label>
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="has_masters_degree" value="no" {{ old('has_masters_degree', 'no') === 'no' ? 'checked' : '' }}>
+                                        <span><strong>No</strong></span>
+                                    </label>
+                                </div>
+                                @if($errors->has('has_masters_degree'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('has_masters_degree') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <hr>
+                            </div>
+                            <div class="col-12">
+                                <h3 class="apply-section-title mb-0">Work experience</h3>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Work Experience (years)</label>
+                                <input type="number" name="work_experience_years" value="{{ old('work_experience_years') }}" class="form-control{{ $errors->has('work_experience_years') ? ' is-invalid' : '' }}" min="0" max="60" required>
+                                @if($errors->has('work_experience_years'))
+                                    <div class="invalid-feedback">{{ $errors->first('work_experience_years') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-md-8">
+                                <label class="form-label fw-semibold">Select Company</label>
+                                <input type="text" name="company_name" value="{{ old('company_name') }}" class="form-control{{ $errors->has('company_name') ? ' is-invalid' : '' }}" placeholder="Enter your company name" required>
+                                @if($errors->has('company_name'))
+                                    <div class="invalid-feedback">{{ $errors->first('company_name') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Select Industry</label>
+                                <select name="industry" class="form-select{{ $errors->has('industry') ? ' is-invalid' : '' }}" required>
+                                    <option value="" disabled {{ old('industry') ? '' : 'selected' }}>Select industry</option>
+                                    @foreach ($industryOptions as $industry)
+                                        <option value="{{ $industry }}" {{ old('industry') === $industry ? 'selected' : '' }}>{{ $industry }}</option>
+                                    @endforeach
+                                </select>
+                                @if($errors->has('industry'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('industry') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Job Role (Designation)</label>
+                                <select name="job_role" class="form-select{{ $errors->has('job_role') ? ' is-invalid' : '' }}" required>
+                                    <option value="" disabled {{ old('job_role') ? '' : 'selected' }}>Select role</option>
+                                    @foreach ($jobRoleOptions as $role)
+                                        <option value="{{ $role }}" {{ old('job_role') === $role ? 'selected' : '' }}>{{ $role }}</option>
+                                    @endforeach
+                                </select>
+                                @if($errors->has('job_role'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('job_role') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <hr>
+                            </div>
+                            <div class="col-12">
+                                <h3 class="apply-section-title mb-0">Program preferences</h3>
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Level of Study</label>
@@ -763,18 +1004,6 @@
                                 </div>
                                 @if($errors->has('course_and_degree'))
                                     <div class="invalid-feedback d-block">{{ $errors->first('course_and_degree') }}</div>
-                                @endif
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label fw-semibold">Subject of Interest</label>
-                                <select name="subject_of_interest" class="form-select{{ $errors->has('subject_of_interest') ? ' is-invalid' : '' }}" required>
-                                    <option value="" disabled {{ old('subject_of_interest') ? '' : 'selected' }}>Please select</option>
-                                    @foreach ($subjectOptions as $subject)
-                                        <option value="{{ $subject }}" {{ old('subject_of_interest') === $subject ? 'selected' : '' }}>{{ $subject }}</option>
-                                    @endforeach
-                                </select>
-                                @if($errors->has('subject_of_interest'))
-                                    <div class="invalid-feedback d-block">{{ $errors->first('subject_of_interest') }}</div>
                                 @endif
                             </div>
                             <div class="col-md-6">
@@ -817,11 +1046,29 @@
                                     <div class="invalid-feedback d-block">{{ $errors->first('preferred_session') }}</div>
                                 @endif
                             </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Referral Code</label>
+                                <input type="text" name="referral_code" value="{{ old('referral_code') }}" class="form-control{{ $errors->has('referral_code') ? ' is-invalid' : '' }}" placeholder="Enter referral code (optional)">
+                                @if($errors->has('referral_code'))
+                                    <div class="invalid-feedback">{{ $errors->first('referral_code') }}</div>
+                                @endif
+                            </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Comments or Questions</label>
-                                <textarea name="comments" rows="5" class="form-control{{ $errors->has('comments') ? ' is-invalid' : '' }}" placeholder="Share any goals, requirements, or questions for our admissions team." required>{{ old('comments') }}</textarea>
+                                <textarea name="comments" rows="5" class="form-control{{ $errors->has('comments') ? ' is-invalid' : '' }}" placeholder="Share any goals, requirements, or questions for our admissions team.">{{ old('comments') }}</textarea>
                                 @if($errors->has('comments'))
                                     <div class="invalid-feedback">{{ $errors->first('comments') }}</div>
+                                @endif
+                            </div>
+                            <div class="col-12">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="disclaimer_accepted" id="disclaimer_accepted" value="1" {{ old('disclaimer_accepted') ? 'checked' : '' }} required>
+                                    <label class="form-check-label apply-disclaimer" for="disclaimer_accepted">
+                                        DISCLAIMER: I agree that the information provided by me is true and in case any discrepancy is found between the information provided by me and the supporting documents that I will submit, my admission for this program is liable to get canceled and I will not be eligible for a refund.
+                                    </label>
+                                </div>
+                                @if($errors->has('disclaimer_accepted'))
+                                    <div class="invalid-feedback d-block">{{ $errors->first('disclaimer_accepted') }}</div>
                                 @endif
                             </div>
                             <div class="col-12">
@@ -1016,6 +1263,32 @@
                 });
             }
         }
+
+        const toggleGroup = (container, enabled) => {
+            if (!container) return;
+            container.style.display = enabled ? '' : 'none';
+            container.querySelectorAll('input, select, textarea').forEach((el) => {
+                el.disabled = !enabled;
+            });
+        };
+
+        const middleNameField = document.getElementById('middle-name-field');
+        const middleNameRadios = document.querySelectorAll('input[name="has_middle_name"]');
+        const syncMiddleName = () => {
+            const choice = document.querySelector('input[name="has_middle_name"]:checked');
+            toggleGroup(middleNameField, choice && choice.value === 'yes');
+        };
+        middleNameRadios.forEach((radio) => radio.addEventListener('change', syncMiddleName));
+        syncMiddleName();
+
+        const bachelorsFields = document.getElementById('bachelors-fields');
+        const bachelorsRadios = document.querySelectorAll('input[name="has_bachelors_degree"]');
+        const syncBachelors = () => {
+            const choice = document.querySelector('input[name="has_bachelors_degree"]:checked');
+            toggleGroup(bachelorsFields, choice && choice.value === 'yes');
+        };
+        bachelorsRadios.forEach((radio) => radio.addEventListener('change', syncBachelors));
+        syncBachelors();
     });
 </script>
 </div>
