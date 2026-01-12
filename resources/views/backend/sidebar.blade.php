@@ -440,6 +440,16 @@
             </a>
           </li>
 
+          <li class="nav-item">
+            <form id="clear-cache-form" action="{{ route('admin.cache.clear') }}" method="POST" style="display: none;">
+              @csrf
+            </form>
+            <a href="#" class="nav-link" onclick="event.preventDefault(); if (confirm('Clear application cache?')) { document.getElementById('clear-cache-form').submit(); }">
+              <i class="nav-icon fas fa-broom"></i>
+              <p>Clear Cache</p>
+            </a>
+          </li>
+
           <li>
             <form id="logout-form" action="{{ route('admin.logout') }}" method="POST" style="display: none;">
                 @csrf

@@ -171,7 +171,6 @@ Route::get('premium-course-details/{slug}/{id}', function ($slug, $id) {
 // Route::get('support-for-study-abroad', [homeController::class, 'support_study_abroad'])->name('support.study.abroad');
 // Route::get('support-career-preparation', [homeController::class, 'career_preparation'])->name('support.career.preparation');
 Route::get('contact-us', [homeController::class, 'contact_us'])->name('contact.us');
-Route::get('clear-cache', [homeController::class, 'clear_cache'])->name('clear.cache');
 Route::get('blog', [homeController::class, 'all_blogs'])->name('all.blogs');
 // 301 permanent redirect
 Route::permanentRedirect('all-blogs', 'blog');
@@ -188,17 +187,6 @@ Route::get('/book-consultation', [homeController::class, 'showStep1'])->name('co
 Route::get('book-consultation/personal-info', [HomeController::class, 'showStep2'])->name('consultation.step2');
 Route::post('/book-consultation/personal-infos', [HomeController::class, 'submitBooking'])->name('consultation.personal-info');
 Route::get('/confirmation', [homeController::class, 'confirmation'])->name('consultation.confirmation');
-
-Route::get('/clear', function(){
-    
-     \Artisan::call('route:clear');
-     \Artisan::call('optimize:clear');
-     \Artisan::call('cache:clear');
-     \Artisan::call('view:clear');
-    return 'done';
-});
-
-
 
 // Admin Auth
 Route::prefix('admin')->name('admin.')->group(function () {
@@ -334,6 +322,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{id}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/cache/clear', [homeController::class, 'clear_cache'])->name('cache.clear');
     });
 });
 

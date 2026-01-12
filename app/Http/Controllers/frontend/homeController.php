@@ -535,6 +535,7 @@ public function whereToStudy(string $slug)
         $sort = $request->query('sort', 'newest');
         $priceMinFilter = $request->query('price_min');
         $priceMaxFilter = $request->query('price_max');
+        $cacheTtl = 600;
 
         if ($redirect = $this->maybeRedirectToCategoryPage($request)) {
             return $redirect;
@@ -608,33 +609,41 @@ public function whereToStudy(string $slug)
 
         $full_access = $fullAccessQuery->get();
 
-        $categories = PremiumCourseCategory::query()
-            ->withCount(['courses as premium_courses_count' => function ($query) {
-                $query->where('type', 'single')
-                    ->where('status', 1);
-            }])
-            ->orderBy('name')
-            ->get();
+        $categories = Cache::remember('premium_course_categories', $cacheTtl, function () {
+            return PremiumCourseCategory::query()
+                ->withCount(['courses as premium_courses_count' => function ($query) {
+                    $query->where('type', 'single')
+                        ->where('status', 1);
+                }])
+                ->orderBy('name')
+                ->get();
+        });
 
         $subcategories = $filters['category']
-            ? PremiumCourseSubcategory::query()
-                ->where('category_id', $filters['category']->id)
-                ->orderBy('name')
-                ->get()
+            ? Cache::remember('premium_course_subcategories_' . $filters['category']->id, $cacheTtl, function () use ($filters) {
+                return PremiumCourseSubcategory::query()
+                    ->where('category_id', $filters['category']->id)
+                    ->orderBy('name')
+                    ->get();
+            })
             : collect();
 
         $childCategories = $filters['subcategory']
-            ? PremiumCourseChildCategory::query()
-                ->where('subcategory_id', $filters['subcategory']->id)
-                ->orderBy('name')
-                ->get()
+            ? Cache::remember('premium_course_child_categories_' . $filters['subcategory']->id, $cacheTtl, function () use ($filters) {
+                return PremiumCourseChildCategory::query()
+                    ->where('subcategory_id', $filters['subcategory']->id)
+                    ->orderBy('name')
+                    ->get();
+            })
             : collect();
 
-        $priceStats = PremiumCourse::query()
-            ->where('type', 'single')
-            ->where('status', 1)
-            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
-            ->first();
+        $priceStats = Cache::remember('premium_course_price_stats', $cacheTtl, function () {
+            return PremiumCourse::query()
+                ->where('type', 'single')
+                ->where('status', 1)
+                ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
+                ->first();
+        });
 
         return view('frontend.premium_courses', compact(
             'all_courses',
@@ -1238,7 +1247,7 @@ public function free_courses(){
     \Artisan::call('view:clear');
     \Artisan::call('config:clear');
     \Artisan::call('config:cache');
-    dd("Application all cached has been cleared!");
+    return redirect()->back()->with('success', 'Application cache has been cleared.');
     }
     
     public function webinners()
@@ -1297,7 +1306,9 @@ public function consultation_book()
 
     public function showStep1()
     {
-        $timeSlots = $this->generateTimeSlots();
+        $timeSlots = Cache::remember('consultation_time_slots', 3600, function () {
+            return $this->generateTimeSlots();
+        });
 
         return view('frontend.book_consultancy', compact('timeSlots'));
     }
