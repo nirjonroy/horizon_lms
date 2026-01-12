@@ -30,4 +30,9 @@ class onlineFee extends Model
     {
         return $this->belongsTo(feesCategory::class, 'degree_id'); // Assuming 'degree_id' is the foreign key in 'online_fees' table
     }
+
+    public function university()
+    {
+        return $this->belongsTo(whereToStudy::class, 'university_id');
+    }
 }

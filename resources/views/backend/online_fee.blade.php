@@ -14,7 +14,7 @@
         <thead>
         <tr>
           <th>SL</th>
-          <th>Degree Name</th>
+          <th>University</th>
           <th>Programs</th>
           <th>Total Fee</th>
 
@@ -25,7 +25,7 @@
             @foreach($fees as $key=>$item)
             <tr>
                 <td>{{$key+1}}</td>
-                <td></td>
+                <td>{{ optional($item->university)->name ?: 'N/A' }}</td>
                 <td>{{$item->program}}</td>
                 <td>{{$item->total_fee}}</td>
 

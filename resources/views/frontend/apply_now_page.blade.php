@@ -747,7 +747,7 @@
                                     <div class="invalid-feedback">{{ $errors->first('email') }}</div>
                                 @endif
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-12">
                                 <label class="form-label fw-semibold">Phone Number</label>
                                 <div class="input-group">
                                     <select

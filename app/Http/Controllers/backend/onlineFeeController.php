@@ -14,7 +14,10 @@ use Illuminate\Support\Str;
 class onlineFeeController extends Controller
 {
     public function index(){
-            $fees = onlineFee::where('status',1)->latest()->get();
+            $fees = onlineFee::with('university')
+                ->where('status', 1)
+                ->latest()
+                ->get();
 
         return view('backend.online_fee', compact('fees'));
     }
