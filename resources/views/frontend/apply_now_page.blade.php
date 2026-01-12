@@ -39,6 +39,17 @@
         'Spring ( January - April )',
         'Summer ( May - July )',
     ];
+    $selectedFee = $selectedFee ?? null;
+    $selectedProgramKey = old('selected_program', $selectedProgramSlug ?? null);
+    $selectedProgram = $programOptions->firstWhere('slug', $selectedProgramKey)
+        ?: $programOptions->firstWhere('program', $selectedProgramKey);
+    $selectedUniversity = $universities->firstWhere('id', old('selected_university_id', $selectedUniversityId));
+    $displayProgramName = $selectedProgramName ?: (optional($selectedProgram)->program ?: 'Select a program');
+    $displayUniversityName = optional($selectedUniversity)->name ?: 'Partner University';
+    $displayUniversityMark = Str::upper(Str::substr(str_replace(' ', '', $displayUniversityName), 0, 2));
+    $displayDuration = optional($selectedFee)->duration ?: 'Flexible duration';
+    $displayMode = optional($selectedFee)->type ?: 'Online';
+    $displayStart = 'Next intake';
 @endphp
 @section('title', $seoTitle)
 @section('seos')
@@ -64,6 +75,9 @@
     <meta name="language" content="english">
     <meta name="distribution" content="global">
     <meta name="rating" content="general">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="canonical" href="{{ url()->current() }}">
     @if($favicon)
         <link rel="icon" type="image/png" sizes="32x32" href="{{ $favicon }}">
@@ -78,28 +92,547 @@
 @endsection
 
 @section('content')
-<section class="py-5" style="background: linear-gradient(120deg, #001d42, #e6443c);">
-    <div class="container text-center text-white">
-        <span class="badge bg-white text-primary mb-3">Apply Now</span>
-        <h1 class="display-5 fw-bold mb-3" style="color:white">Start Your Application</h1>
-        <p class="mb-0 text-white-50" style="color:white !important">Tell us about your goals and we will match you with the right program, university, and start date.</p>
+<style>
+    :root {
+        --apply-bg: #f6f7fb;
+        --apply-ink: #0f172a;
+        --apply-muted: #6b7280;
+        --apply-border: #e5e7eb;
+        --apply-card: #ffffff;
+        --apply-accent: #ff4d5a;
+        --apply-accent-2: #16a34a;
+        --apply-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+    }
+
+    .apply-page {
+        font-family: "Sora", sans-serif;
+        background: var(--apply-bg);
+        color: var(--apply-ink);
+    }
+
+    .apply-page h1,
+    .apply-page h2,
+    .apply-page h3 {
+        font-family: "Fraunces", serif;
+        letter-spacing: -0.01em;
+    }
+
+    .apply-hero {
+        position: relative;
+        padding: 96px 0 64px;
+        background:
+            radial-gradient(circle at 12% 20%, rgba(255, 77, 90, 0.16), transparent 48%),
+            radial-gradient(circle at 85% 10%, rgba(22, 163, 74, 0.16), transparent 45%),
+            #f8f6f3;
+        overflow: hidden;
+    }
+
+    .apply-hero::after {
+        content: "";
+        position: absolute;
+        right: -120px;
+        top: 80px;
+        width: 280px;
+        height: 280px;
+        border-radius: 64px;
+        background: linear-gradient(135deg, rgba(255, 77, 90, 0.18), rgba(22, 163, 74, 0.18));
+        transform: rotate(12deg);
+        z-index: 0;
+    }
+
+    .apply-hero-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+        gap: 40px;
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .apply-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: #ffffff;
+        color: var(--apply-ink);
+        font-size: 12px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+    }
+
+    .apply-program-card {
+        background: var(--apply-card);
+        border-radius: 24px;
+        padding: 24px;
+        margin-top: 18px;
+        border: 1px solid var(--apply-border);
+        box-shadow: var(--apply-shadow);
+    }
+
+    .apply-program-top {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .apply-program-mark {
+        width: 56px;
+        height: 56px;
+        border-radius: 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(140deg, var(--apply-accent), #ff7a59);
+        color: #ffffff;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+    }
+
+    .apply-program-title {
+        font-size: clamp(1.6rem, 1.2rem + 1.2vw, 2.2rem);
+        margin: 0;
+    }
+
+    .apply-program-school {
+        color: var(--apply-muted);
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    .apply-program-meta {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .apply-program-meta span {
+        display: block;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--apply-muted);
+    }
+
+    .apply-program-meta strong {
+        display: block;
+        font-weight: 600;
+        margin-top: 4px;
+    }
+
+    .apply-process {
+        margin-top: 28px;
+    }
+
+    .apply-process-title {
+        font-size: 13px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--apply-muted);
+        font-weight: 600;
+        margin-bottom: 14px;
+    }
+
+    .apply-steps {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        position: relative;
+    }
+
+    .apply-steps::before {
+        content: "";
+        position: absolute;
+        top: 12px;
+        left: 10%;
+        right: 10%;
+        height: 2px;
+        background: #e5e7eb;
+    }
+
+    .apply-step {
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .apply-step-dot {
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        border: 2px solid #d1d5db;
+        background: #ffffff;
+        margin: 0 auto 8px;
+    }
+
+    .apply-step.is-active .apply-step-dot {
+        border-color: var(--apply-accent-2);
+        background: var(--apply-accent-2);
+        box-shadow: 0 0 0 6px rgba(22, 163, 74, 0.15);
+    }
+
+    .apply-step-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .apply-step-time {
+        font-size: 0.8rem;
+        color: var(--apply-muted);
+    }
+
+    .apply-cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 26px;
+        padding: 16px 26px;
+        border-radius: 14px;
+        background: linear-gradient(120deg, var(--apply-accent), #ff7a59);
+        color: #ffffff;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 18px 30px rgba(255, 77, 90, 0.25);
+        transition: transform 0.2s ease;
+    }
+
+    .apply-cta:hover {
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    .apply-hero-aside {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .apply-aside-card {
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 24px;
+        border: 1px solid var(--apply-border);
+        box-shadow: var(--apply-shadow);
+    }
+
+    .apply-aside-card h3 {
+        margin-bottom: 10px;
+    }
+
+    .apply-aside-card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--apply-muted);
+    }
+
+    .apply-aside-note {
+        background: #0f172a;
+        color: #ffffff;
+        border-radius: 22px;
+        padding: 22px;
+    }
+
+    .apply-ghost {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        color: #ffffff;
+        text-decoration: none;
+        margin-top: 12px;
+    }
+
+    .apply-form-section {
+        padding: 70px 0;
+        background: var(--apply-bg);
+    }
+
+    .apply-form-card {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 32px;
+        border: 1px solid var(--apply-border);
+        box-shadow: var(--apply-shadow);
+    }
+
+    .apply-form-head {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .apply-round {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.18em;
+        color: var(--apply-muted);
+        font-weight: 600;
+    }
+
+    .apply-progress {
+        flex: 1;
+        height: 6px;
+        border-radius: 999px;
+        background: #e5e7eb;
+        overflow: hidden;
+        min-width: 140px;
+    }
+
+    .apply-progress span {
+        display: block;
+        height: 100%;
+        width: 34%;
+        background: linear-gradient(120deg, var(--apply-accent), #ff7a59);
+    }
+
+    .apply-form-title {
+        margin: 6px 0 4px;
+    }
+
+    .apply-form-sub {
+        color: var(--apply-muted);
+        margin-bottom: 0;
+    }
+
+    .apply-section-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin-top: 8px;
+    }
+
+    .apply-form .form-label {
+        font-weight: 600;
+        color: var(--apply-ink);
+    }
+
+    .apply-form .form-control,
+    .apply-form .form-select {
+        border-radius: 14px;
+        border: 1px solid #e5e7eb;
+        padding: 12px 14px;
+        font-size: 0.98rem;
+        background-color: #ffffff;
+    }
+
+    .apply-form .form-control:focus,
+    .apply-form .form-select:focus {
+        border-color: var(--apply-accent);
+        box-shadow: 0 0 0 4px rgba(255, 77, 90, 0.15);
+    }
+
+    .apply-toggle {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .apply-toggle-option {
+        position: relative;
+    }
+
+    .apply-toggle-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .apply-toggle-option span {
+        display: block;
+        min-width: 220px;
+        padding: 14px 16px;
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #ffffff;
+        transition: all 0.2s ease;
+        cursor: pointer;
+    }
+
+    .apply-toggle-option span strong {
+        display: block;
+        font-weight: 600;
+    }
+
+    .apply-toggle-option span em {
+        display: block;
+        font-style: normal;
+        color: var(--apply-muted);
+        font-size: 0.85rem;
+        margin-top: 4px;
+    }
+
+    .apply-toggle-option input:checked + span {
+        border-color: var(--apply-accent-2);
+        box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+    }
+
+    .apply-disclaimer {
+        font-size: 0.85rem;
+        color: var(--apply-muted);
+    }
+
+    .apply-submit {
+        background: linear-gradient(120deg, var(--apply-accent), #ff7a59);
+        border: none;
+        color: #ffffff;
+        padding: 14px 22px;
+        border-radius: 14px;
+        font-weight: 600;
+        width: 100%;
+        cursor: pointer;
+    }
+
+    .apply-form-aside {
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+    }
+
+    .apply-aside-grid {
+        display: grid;
+        gap: 12px;
+    }
+
+    .apply-aside-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 0.95rem;
+        color: var(--apply-muted);
+    }
+
+    .apply-aside-item span:last-child {
+        color: var(--apply-ink);
+        font-weight: 600;
+        text-align: right;
+    }
+
+    [data-animate] {
+        opacity: 0;
+        transform: translateY(16px);
+        animation: applyFadeUp 0.8s ease forwards;
+    }
+
+    [data-animate="1"] { animation-delay: 0.05s; }
+    [data-animate="2"] { animation-delay: 0.15s; }
+    [data-animate="3"] { animation-delay: 0.25s; }
+    [data-animate="4"] { animation-delay: 0.35s; }
+
+    @keyframes applyFadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 991px) {
+        .apply-hero-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .apply-hero {
+            padding: 72px 0 56px;
+        }
+
+        .apply-program-meta {
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        }
+    }
+</style>
+<div class="apply-page">
+<section class="apply-hero">
+    <div class="container">
+        <div class="apply-hero-grid">
+            <div class="apply-hero-content">
+                <span class="apply-pill" data-animate="1">You are applying for</span>
+                <div class="apply-program-card" data-animate="2">
+                    <div class="apply-program-top">
+                        <div class="apply-program-mark">{{ $displayUniversityMark ?: 'HU' }}</div>
+                        <div>
+                            <h1 class="apply-program-title">{{ $displayProgramName }}</h1>
+                            <div class="apply-program-school">{{ $displayUniversityName }}</div>
+                        </div>
+                    </div>
+                    <div class="apply-program-meta">
+                        <div>
+                            <span>Duration</span>
+                            <strong>{{ $displayDuration }}</strong>
+                        </div>
+                        <div>
+                            <span>Format</span>
+                            <strong>{{ $displayMode }}</strong>
+                        </div>
+                        <div>
+                            <span>Starts</span>
+                            <strong>{{ $displayStart }}</strong>
+                        </div>
+                    </div>
+                </div>
+                <div class="apply-process" data-animate="3">
+                    <div class="apply-process-title">Admission process</div>
+                    <div class="apply-steps">
+                        <div class="apply-step is-active">
+                            <div class="apply-step-dot"></div>
+                            <div class="apply-step-label">Screening Round</div>
+                            <div class="apply-step-time">5 mins</div>
+                        </div>
+                        <div class="apply-step">
+                            <div class="apply-step-dot"></div>
+                            <div class="apply-step-label">Selection Rounds</div>
+                            <div class="apply-step-time">150 mins</div>
+                        </div>
+                        <div class="apply-step">
+                            <div class="apply-step-dot"></div>
+                            <div class="apply-step-label">Block Payment</div>
+                            <div class="apply-step-time">5 mins</div>
+                        </div>
+                    </div>
+                </div>
+                <a href="#apply-form" class="apply-cta" data-animate="4">
+                    Let's get started <span class="apply-arrow">-></span>
+                </a>
+            </div>
+            <div class="apply-hero-aside" data-animate="3">
+                <div class="apply-aside-card">
+                    <h3>Why apply now</h3>
+                    <p class="text-muted mb-3">Secure your preferred intake and get a personalized admissions plan from our advisors.</p>
+                    <ul>
+                        <li>Eligibility check in 24 hours.</li>
+                        <li>Shortlist of matching universities.</li>
+                        <li>Dedicated support for documents.</li>
+                    </ul>
+                </div>
+                <div class="apply-aside-note">
+                    <h3 class="mb-2">Need guidance?</h3>
+                    <p class="mb-0">Book a quick call with our admissions team to discuss your program options.</p>
+                    <a href="{{ route('consultation.step1') }}" class="apply-ghost">Book consultation</a>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 
 
-<section class="py-5 bg-light">
+<section class="apply-form-section" id="apply-form">
     <div class="container">
         <div class="row g-4">
             <div class="col-lg-7">
-                <div class="card border-0 shadow-lg rounded-4">
+                <div class="card border-0 shadow-lg rounded-4 apply-form-card">
                     <div class="card-body p-4 p-md-5">
-                        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                        <div class="apply-form-head mb-4">
                             <div>
-                                <h2 class="h4 text-primary mb-1">Application Details</h2>
-                                <p class="text-muted mb-0">Complete the form below and we will take care of the rest.</p>
+                                <span class="apply-round">Screening round</span>
+                                <h2 class="apply-form-title">Tell us about you</h2>
+                                <p class="apply-form-sub">Complete this short form to confirm your eligibility and program fit.</p>
                             </div>
-                            <span class="badge bg-primary-subtle text-primary mt-3 mt-md-0">Step 1 of 2</span>
+                            <div class="apply-progress" aria-hidden="true"><span></span></div>
                         </div>
                         {{-- Ensure SweetAlert2 is available before firing --}}
                         <script>
@@ -133,15 +666,17 @@
                                     Swal.fire({
                                         icon: 'error',
                                         title: 'Please fix the highlighted fields',
-                                        html: messages.map(m => `<div class="text-start">• ${m}</div>`).join(''),
+                                        html: messages.map(m => `<div class="text-start">- ${m}</div>`).join(''),
                                         confirmButtonColor: '#ec5252'
                                     });
                                 });
                             </script>
                         @endif
-                        <form action="{{ route('apply.form') }}" method="POST" class="row g-4">
+                        <form action="{{ route('apply.form') }}" method="POST" class="row g-4 apply-form">
                             @csrf
-                            <h3 class="h6 text-uppercase text-muted fw-semibold mb-0">Personal Information</h3>
+                            <div class="col-12">
+                                <h3 class="apply-section-title mb-0">Personal information</h3>
+                            </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">First Name</label>
                                 <input type="text" name="first_name" value="{{ old('first_name') }}" class="form-control{{ $errors->has('first_name') ? ' is-invalid' : '' }}" placeholder="Enter your name" required>
@@ -205,16 +740,26 @@
                             <div class="col-12">
                                 <hr>
                             </div>
-                            <h3 class="h6 text-uppercase text-muted fw-semibold mb-0">Study Preferences</h3>
-                            <div class="col-md-6">
+                            <div class="col-12">
+                                <h3 class="apply-section-title mb-0">Study preferences</h3>
+                            </div>
+                            <div class="col-12">
                                 <label class="form-label fw-semibold">Level of Study</label>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" name="course_and_degree" id="studyUndergrad" value="Undergraduate" {{ old('course_and_degree', 'Undergraduate') === 'Undergraduate' ? 'checked' : '' }} required>
-                                    <label class="form-check-label" for="studyUndergrad">Undergraduate (pathway to a bachelor’s degree)</label>
-                                </div>
-                                <div class="form-check mt-2">
-                                    <input class="form-check-input" type="radio" name="course_and_degree" id="studyPostgrad" value="Postgraduate" {{ old('course_and_degree') === 'Postgraduate' ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="studyPostgrad">Postgraduate (pathway to a master’s degree)</label>
+                                <div class="apply-toggle">
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="course_and_degree" id="studyUndergrad" value="Undergraduate" {{ old('course_and_degree', 'Undergraduate') === 'Undergraduate' ? 'checked' : '' }} required>
+                                        <span>
+                                            <strong>Undergraduate</strong>
+                                            <em>Pathway to a bachelor's degree</em>
+                                        </span>
+                                    </label>
+                                    <label class="apply-toggle-option">
+                                        <input class="form-check-input" type="radio" name="course_and_degree" id="studyPostgrad" value="Postgraduate" {{ old('course_and_degree') === 'Postgraduate' ? 'checked' : '' }}>
+                                        <span>
+                                            <strong>Postgraduate</strong>
+                                            <em>Pathway to a master's degree</em>
+                                        </span>
+                                    </label>
                                 </div>
                                 @if($errors->has('course_and_degree'))
                                     <div class="invalid-feedback d-block">{{ $errors->first('course_and_degree') }}</div>
@@ -280,7 +825,7 @@
                                 @endif
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn theme-btn w-100">Submit Application <i class="la la-arrow-right ms-1"></i></button>
+                                <button type="submit" class="apply-submit">Submit application <span aria-hidden="true">-></span></button>
                             </div>
                         </form>
                     </div>
@@ -335,7 +880,7 @@
                             <i class="la la-graduation-cap"></i>
                         </div>
                         <h3 class="h5">Global Programs</h3>
-                        <p class="text-muted mb-0">Access bachelor’s, master’s, and pathway courses across Europe, the US, Canada, and beyond.</p>
+                        <p class="text-muted mb-0">Access bachelor's, master's, and pathway courses across Europe, the US, Canada, and beyond.</p>
                     </div>
                 </div>
             </div>
@@ -473,4 +1018,5 @@
         }
     });
 </script>
+</div>
 @endsection

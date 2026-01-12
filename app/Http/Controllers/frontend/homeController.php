@@ -265,7 +265,8 @@ class homeController extends Controller
             'selectedProgramSlug',
             'selectedProgramName',
             'selectedUniversityId',
-            'programOptions'
+            'programOptions',
+            'selectedFee'
         ));
     }
 
