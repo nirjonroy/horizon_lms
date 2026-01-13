@@ -249,6 +249,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
      Route::get('/fees-online-edit/{id}', [onlineFeeController::class, 'edit'])->name('fees.online.edit');
      Route::delete('/fees-online-delete/{id}', [onlineFeeController::class, 'destroy'])->name('fees.online.destroy');
      Route::post('/fees-online-update/{id}', [onlineFeeController::class, 'update'])->name('fees.online.update');
+     Route::get('/fees-online-export', [onlineFeeController::class, 'export'])->name('fees.online.export');
+     Route::post('/fees-online-import', [onlineFeeController::class, 'import'])->name('fees.online.import');
      Route::get('/fees-online-recomanded/{id}', [onlineFeeController::class, 'recommand'])->name('fees.online.recomand');
      Route::get('/fees-online-not-recomanded/{id}', [onlineFeeController::class, 'not_recommand'])->name('fees.online.notRecomand');
 
