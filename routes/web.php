@@ -298,6 +298,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/permium-course-store', [PremiumCourseController::class, 'store'])->name('courses.store');
     Route::get('/permium-course-edit/{id}', [PremiumCourseController::class, 'edit'])->name('courses.edit');
     Route::put('/permium-course-update/{id}', [PremiumCourseController::class, 'update'])->name('courses.update');
+    Route::get('/permium-course-export', [PremiumCourseController::class, 'export'])->name('courses.export');
+    Route::post('/permium-course-import', [PremiumCourseController::class, 'import'])->name('courses.import');
     Route::post('/permium-course-toggle/{course}', [PremiumCourseController::class, 'toggleStatus'])->name('courses.toggle');
     Route::delete('/permium-course-delete/{id}', [PremiumCourseController::class, 'destroy'])->name('courses.destroy');
 

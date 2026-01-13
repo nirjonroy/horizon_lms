@@ -22,6 +22,258 @@ class PremiumCourseController extends Controller
         return view('backend.premium_courses', compact('courses'));
     }
 
+    public function export()
+    {
+        $courses = PremiumCourse::with(['category', 'subcategory', 'childCategory'])
+            ->orderBy('id')
+            ->get();
+
+        $columns = [
+            'id',
+            'title',
+            'slug',
+            'instructor',
+            'category_id',
+            'category_name',
+            'subcategory_id',
+            'subcategory_name',
+            'child_category_id',
+            'child_category_name',
+            'type',
+            'price',
+            'old_price',
+            'duration',
+            'effort',
+            'questions',
+            'format',
+            'link',
+            'short_description',
+            'long_description',
+            'image',
+            'meta_title',
+            'meta_description',
+            'meta_image',
+            'author',
+            'publisher',
+            'copyright',
+            'site_name',
+            'keywords',
+            'status',
+        ];
+
+        $filename = 'premium_courses_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->stream(function () use ($courses, $columns) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, $columns);
+
+            foreach ($courses as $course) {
+                fputcsv($handle, [
+                    $course->id,
+                    $course->title,
+                    $course->slug,
+                    $course->instructor,
+                    $course->category_id,
+                    optional($course->category)->name,
+                    $course->subcategory_id,
+                    optional($course->subcategory)->name,
+                    $course->child_category_id,
+                    optional($course->childCategory)->name,
+                    $course->type,
+                    $course->price,
+                    $course->old_price,
+                    $course->duration,
+                    $course->effort,
+                    $course->questions,
+                    $course->format,
+                    $course->link,
+                    $course->short_description,
+                    $course->long_description,
+                    $course->image,
+                    $course->meta_title,
+                    $course->meta_description,
+                    $course->meta_image,
+                    $course->author,
+                    $course->publisher,
+                    $course->copyright,
+                    $course->site_name,
+                    $course->keywords,
+                    $course->status,
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:10240'],
+        ]);
+
+        $handle = fopen($request->file('csv_file')->getRealPath(), 'r');
+        if (! $handle) {
+            return redirect()->back()->with('success', 'Import failed: unable to read the CSV file.');
+        }
+
+        $header = fgetcsv($handle);
+        if (! $header) {
+            fclose($handle);
+            return redirect()->back()->with('success', 'Import failed: the CSV file is empty.');
+        }
+
+        $header = array_map([$this, 'normalizeCsvHeader'], $header);
+
+        $categories = PremiumCourseCategory::query()->select('id', 'name')->get();
+        $categoryLookup = array_change_key_case($categories->pluck('id', 'name')->all(), CASE_LOWER);
+
+        $subcategories = PremiumCourseSubcategory::query()->select('id', 'category_id', 'name')->get();
+        $subcategoryLookup = array_change_key_case($subcategories->pluck('id', 'name')->all(), CASE_LOWER);
+        $subcategoryCategory = $subcategories->pluck('category_id', 'id')->all();
+
+        $childCategories = PremiumCourseChildCategory::query()->select('id', 'category_id', 'subcategory_id', 'name')->get();
+        $childCategoryLookup = array_change_key_case($childCategories->pluck('id', 'name')->all(), CASE_LOWER);
+        $childCategoryMeta = $childCategories->mapWithKeys(function ($item) {
+            return [$item->id => ['category_id' => $item->category_id, 'subcategory_id' => $item->subcategory_id]];
+        })->all();
+
+        $created = 0;
+        $updated = 0;
+        $skipped = 0;
+        $errors = [];
+        $rowNumber = 1;
+
+        while (($row = fgetcsv($handle)) !== false) {
+            $rowNumber++;
+            $row = array_slice(array_pad($row, count($header), null), 0, count($header));
+            $data = array_combine($header, $row);
+
+            if (! $data || $this->isEmptyCsvRow($data)) {
+                $skipped++;
+                continue;
+            }
+
+            $id = $this->normalizeCsvValue($data['id'] ?? null);
+            $title = $this->normalizeCsvValue($data['title'] ?? ($data['name'] ?? null));
+            $slug = $this->normalizeCsvValue($data['slug'] ?? null);
+
+            $course = null;
+            if ($id) {
+                $course = PremiumCourse::find($id);
+            }
+            if (! $course && $slug) {
+                $course = PremiumCourse::where('slug', $slug)->first();
+            }
+
+            if (! $course && ! $title) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} skipped: missing title.";
+                continue;
+            }
+
+            if (! $course) {
+                $course = new PremiumCourse();
+            }
+
+            $categoryId = $this->normalizeCsvValue($data['category_id'] ?? null);
+            $categoryName = $this->normalizeCsvValue($data['category_name'] ?? ($data['category'] ?? null));
+            if (! $categoryId && $categoryName) {
+                $categoryId = $categoryLookup[strtolower($categoryName)] ?? null;
+            }
+
+            $subcategoryId = $this->normalizeCsvValue($data['subcategory_id'] ?? null);
+            $subcategoryName = $this->normalizeCsvValue($data['subcategory_name'] ?? ($data['subcategory'] ?? null));
+            if (! $subcategoryId && $subcategoryName) {
+                $subcategoryId = $subcategoryLookup[strtolower($subcategoryName)] ?? null;
+            }
+
+            $childCategoryId = $this->normalizeCsvValue($data['child_category_id'] ?? null);
+            $childCategoryName = $this->normalizeCsvValue($data['child_category_name'] ?? ($data['child_category'] ?? null));
+            if (! $childCategoryId && $childCategoryName) {
+                $childCategoryId = $childCategoryLookup[strtolower($childCategoryName)] ?? null;
+            }
+
+            if ($childCategoryId && isset($childCategoryMeta[$childCategoryId])) {
+                $subcategoryId = $subcategoryId ?? $childCategoryMeta[$childCategoryId]['subcategory_id'];
+                $categoryId = $categoryId ?? $childCategoryMeta[$childCategoryId]['category_id'];
+            }
+
+            if ($subcategoryId && ! $categoryId) {
+                $categoryId = $subcategoryCategory[$subcategoryId] ?? null;
+            }
+
+            try {
+                $this->ensureValidTaxonomy($categoryId, $subcategoryId, $childCategoryId);
+            } catch (ValidationException $e) {
+                $skipped++;
+                $errors[] = "Row {$rowNumber} skipped: invalid taxonomy.";
+                continue;
+            }
+
+            $course->title = $title ?? $course->title;
+            $course->slug = $slug
+                ? $this->generateUniqueSlug($slug, $course->id)
+                : ($course->slug ?: $this->generateUniqueSlug($course->title ?? 'course', $course->id));
+            $course->instructor = $this->normalizeCsvValue($data['instructor'] ?? null) ?? $course->instructor;
+            $course->type = $this->normalizeCsvValue($data['type'] ?? null) ?? ($course->type ?: 'single');
+            $course->duration = $this->normalizeCsvValue($data['duration'] ?? null) ?? $course->duration;
+            $course->effort = $this->normalizeCsvValue($data['effort'] ?? null) ?? $course->effort;
+            $course->questions = $this->normalizeCsvValue($data['questions'] ?? null) ?? $course->questions;
+            $course->format = $this->normalizeCsvValue($data['format'] ?? null) ?? $course->format;
+            $course->price = $this->normalizeCsvValue($data['price'] ?? null) ?? $course->price;
+            $course->old_price = $this->normalizeCsvValue($data['old_price'] ?? null) ?? $course->old_price;
+            $course->link = $this->normalizeCsvValue($data['link'] ?? null) ?? $course->link;
+            $course->short_description = $this->normalizeCsvValue($data['short_description'] ?? null) ?? $course->short_description;
+            $course->long_description = $this->normalizeCsvValue($data['long_description'] ?? null) ?? $course->long_description;
+            $course->image = $this->normalizeCsvValue($data['image'] ?? null) ?? $course->image;
+            $course->meta_title = $this->normalizeCsvValue($data['meta_title'] ?? null) ?? $course->meta_title;
+            $course->meta_description = $this->normalizeCsvValue($data['meta_description'] ?? null) ?? $course->meta_description;
+            $course->meta_image = $this->normalizeCsvValue($data['meta_image'] ?? null) ?? $course->meta_image;
+            $course->author = $this->normalizeCsvValue($data['author'] ?? null) ?? $course->author;
+            $course->publisher = $this->normalizeCsvValue($data['publisher'] ?? null) ?? $course->publisher;
+            $course->copyright = $this->normalizeCsvValue($data['copyright'] ?? null) ?? $course->copyright;
+            $course->site_name = $this->normalizeCsvValue($data['site_name'] ?? null) ?? $course->site_name;
+
+            $keywords = $this->normalizeCsvValue($data['keywords'] ?? null);
+            if ($keywords !== null) {
+                $course->keywords = $this->normaliseKeywords($keywords);
+            }
+
+            $course->category_id = $categoryId;
+            $course->subcategory_id = $subcategoryId;
+            $course->child_category_id = $childCategoryId;
+
+            $status = $this->normalizeCsvBoolean($data['status'] ?? null);
+            if ($status !== null) {
+                $course->status = $status;
+            } elseif (! $course->exists && $course->status === null) {
+                $course->status = 1;
+            }
+
+            $isNew = ! $course->exists;
+            $course->save();
+
+            if ($isNew) {
+                $created++;
+            } else {
+                $updated++;
+            }
+        }
+
+        fclose($handle);
+
+        $message = "Import complete. Created {$created}, updated {$updated}, skipped {$skipped}.";
+        if ($errors) {
+            $message .= ' Issues: ' . implode(' ', array_slice($errors, 0, 5));
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
     public function create()
     {
         $categories = PremiumCourseCategory::orderBy('name')->get();
@@ -284,5 +536,72 @@ class PremiumCourseController extends Controller
                 ]);
             }
         }
+    }
+
+    private function generateUniqueSlug(?string $value, ?int $ignoreId = null): string
+    {
+        $base = Str::slug($value ?? '') ?: 'course';
+        $slug = $base;
+        $counter = 1;
+
+        while (
+            PremiumCourse::where('slug', $slug)
+                ->when($ignoreId, fn ($q) => $q->where('id', '!=', $ignoreId))
+                ->exists()
+        ) {
+            $slug = $base . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    private function normalizeCsvHeader(?string $value): string
+    {
+        $value = $value ?? '';
+        $value = ltrim($value, "\xEF\xBB\xBF");
+        $value = strtolower(trim($value));
+        $value = preg_replace('/[^a-z0-9]+/', '_', $value);
+        return trim($value, '_');
+    }
+
+    private function normalizeCsvValue($value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        $value = trim((string) $value);
+
+        return $value === '' ? null : $value;
+    }
+
+    private function normalizeCsvBoolean($value): ?int
+    {
+        $value = $this->normalizeCsvValue($value);
+        if ($value === null) {
+            return null;
+        }
+
+        $value = strtolower($value);
+        if (in_array($value, ['1', 'true', 'yes', 'active'], true)) {
+            return 1;
+        }
+        if (in_array($value, ['0', 'false', 'no', 'inactive'], true)) {
+            return 0;
+        }
+
+        return is_numeric($value) ? (int) $value : null;
+    }
+
+    private function isEmptyCsvRow(array $data): bool
+    {
+        foreach ($data as $value) {
+            if ($this->normalizeCsvValue($value) !== null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
