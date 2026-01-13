@@ -106,6 +106,7 @@ Route::get('university/{slug}/program/{program}', [HomeController::class, 'unive
 // Route::get('application-process', [homeController::class, 'application_process'])->name('application.process');
 // Route::get('accommodation', [homeController::class, 'accommodation'])->name('accommodation');
 Route::get('courses', [homeController::class, 'premium_courses'])->name('premium-courses');
+Route::get('bundle-programs', [homeController::class, 'bundlePrograms'])->name('bundle-programs');
 Route::get('free-courses', [homeController::class, 'free_courses'])->name('free-courses');
 Route::permanentRedirect('Horizons-global-courses', 'courses');
 Route::permanentRedirect('Horizons-global-free-courses', 'free-courses');

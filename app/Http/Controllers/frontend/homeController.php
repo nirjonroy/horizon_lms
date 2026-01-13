@@ -41,6 +41,7 @@ use App\Mail\ProgramSyllabusMail;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
  // At the top
 
@@ -765,6 +766,97 @@ public function whereToStudy(string $slug)
                 'min' => $priceMinFilter,
                 'max' => $priceMaxFilter,
             ],
+        ]);
+    }
+
+    public function bundlePrograms(Request $request)
+    {
+        $search = trim((string) $request->input('search', ''));
+        $sort = $request->query('sort', 'newest');
+        $priceMinFilter = $request->query('price_min');
+        $priceMaxFilter = $request->query('price_max');
+
+        $applySearch = function ($query) use ($search) {
+            return $query->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($inner) use ($search) {
+                    $like = '%' . $search . '%';
+                    $inner->where('title', 'like', $like)
+                        ->orWhere('instructor', 'like', $like)
+                        ->orWhere('short_description', 'like', $like);
+                });
+            });
+        };
+
+        $applyPriceFilters = function ($query) use ($priceMinFilter, $priceMaxFilter) {
+            return $query
+                ->when($priceMinFilter !== null && $priceMinFilter !== '', fn ($q) => $q->where('price', '>=', (float) $priceMinFilter))
+                ->when($priceMaxFilter !== null && $priceMaxFilter !== '', fn ($q) => $q->where('price', '<=', (float) $priceMaxFilter));
+        };
+
+        $applySorting = function ($query) use ($sort) {
+            switch ($sort) {
+                case 'oldest':
+                    $query->oldest('updated_at');
+                    break;
+                case 'price_high':
+                    $query->orderBy('price', 'desc');
+                    break;
+                case 'price_low':
+                    $query->orderBy('price', 'asc');
+                    break;
+                case 'name':
+                    $query->orderBy('title');
+                    break;
+                default:
+                    $query->latest('updated_at');
+                    break;
+            }
+        };
+
+        $bundleQuery = PremiumCourse::where('type', '!=', 'single')
+            ->where('type', '!=', 'free')
+            ->where('status', 1);
+        $applySearch($bundleQuery);
+        $applyPriceFilters($bundleQuery);
+        $applySorting($bundleQuery);
+
+        $full_access = $bundleQuery->paginate(20)->withQueryString();
+
+        $emptyCourses = new LengthAwarePaginator(
+            [],
+            0,
+            $full_access->perPage(),
+            $full_access->currentPage(),
+            [
+                'path' => $request->url(),
+                'query' => $request->query(),
+            ]
+        );
+
+        $priceStats = PremiumCourse::query()
+            ->where('type', '!=', 'single')
+            ->where('type', '!=', 'free')
+            ->where('status', 1)
+            ->selectRaw('MIN(price) as min_price, MAX(price) as max_price')
+            ->first();
+
+        return view('frontend.premium_courses', [
+            'all_courses' => $emptyCourses,
+            'full_access' => $full_access,
+            'search' => $search,
+            'categories' => collect(),
+            'subcategories' => collect(),
+            'childCategories' => collect(),
+            'priceStats' => $priceStats,
+            'sort' => $sort,
+            'activeCategory' => null,
+            'activeSubcategory' => null,
+            'activeChildCategory' => null,
+            'priceFilter' => [
+                'min' => $priceMinFilter,
+                'max' => $priceMaxFilter,
+            ],
+            'showBundlesOnly' => true,
         ]);
     }
 

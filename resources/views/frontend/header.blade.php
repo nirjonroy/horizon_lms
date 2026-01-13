@@ -171,6 +171,9 @@
                            <li>
                               <a href="{{route('premium-courses')}}">Explore <i class="la la-angle-down fs-12"></i></a>
                               <ul class="cat-dropdown-menu">
+                                 <li>
+                                    <a href="{{ route('bundle-programs') }}">Unlimited &amp; Bundle Programs</a>
+                                 </li>
                                  @forelse($exploreMenuCategories as $category)
                                     @php
                                        $hasSubcategories = $category->subcategories->isNotEmpty();
@@ -412,6 +415,9 @@
             </a>
             @if($exploreMenuCategories->isNotEmpty())
                <ul class="sub-menu">
+                  <li>
+                     <a href="{{ route('bundle-programs') }}">{{ __('Unlimited & Bundle Programs') }}</a>
+                  </li>
                   @foreach($exploreMenuCategories as $category)
                      @php
                         $hasSubcategories = $category->subcategories->isNotEmpty();
@@ -498,6 +504,9 @@
       </div>
       <!-- end off-canvas-menu-close -->
       <ul class="generic-list-item off-canvas-menu-list pt-90px">
+         <li>
+            <a href="{{ route('bundle-programs') }}">{{ __('Unlimited & Bundle Programs') }}</a>
+         </li>
          @forelse($exploreMenuCategories as $category)
             @php
                $hasSubcategories = $category->subcategories->isNotEmpty();

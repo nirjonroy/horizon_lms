@@ -1,5 +1,6 @@
 @extends('frontend.app')
 @php
+    $showBundlesOnly = $showBundlesOnly ?? false;
     $SeoSettings = \App\Models\SeoSetting::forPage('horizons-global-academy-courses-certificates-robust-deal');
     $siteInfo = DB::table('site_information')->first();
     $keywordsArray = $SeoSettings && $SeoSettings->keywords ? json_decode($SeoSettings->keywords, true) : [];
@@ -13,7 +14,7 @@
         return filter_var($path, FILTER_VALIDATE_URL) ? $path : asset($path);
     };
     $firstCourseImage = null;
-    if (isset($full_access)) {
+    if ($showBundlesOnly && isset($full_access)) {
         $fullAccessCollection = is_iterable($full_access) ? collect($full_access) : collect();
         $firstFullAccess = $fullAccessCollection->first();
         if ($firstFullAccess && isset($firstFullAccess->image)) {
@@ -83,8 +84,19 @@
 @endsection
 @section('content')
     @php
+        $showBundlesOnly = $showBundlesOnly ?? false;
+        $search = $search ?? '';
+        $sort = $sort ?? 'newest';
+        $activeCategory = $activeCategory ?? null;
+        $activeSubcategory = $activeSubcategory ?? null;
+        $activeChildCategory = $activeChildCategory ?? null;
         $priceFilter = $priceFilter ?? ['min' => null, 'max' => null];
-        $totalAvailableCourses = ($all_courses?->total() ?? 0) + ($full_access?->count() ?? 0);
+
+        $bundleItems = collect((isset($full_access) && method_exists($full_access, 'items')) ? $full_access->items() : ($full_access ?? []));
+        $bundlePaginator = (isset($full_access) && method_exists($full_access, 'total')) ? $full_access : null;
+        $bundleTotal = $bundlePaginator ? $bundlePaginator->total() : $bundleItems->count();
+
+        $totalAvailableCourses = $showBundlesOnly ? $bundleTotal : ($all_courses?->total() ?? 0);
         $priceFloor = isset($priceStats) && $priceStats->min_price !== null ? (float) $priceStats->min_price : 0;
         $priceCeil = isset($priceStats) && $priceStats->max_price !== null ? (float) $priceStats->max_price : 0;
         $selectedMin = $priceFilter['min'] ?? null;
@@ -99,7 +111,13 @@
                 return !is_null($value) && $value !== '';
             });
         };
-        $pageHeading = $activeChildCategory->name ?? $activeSubcategory->name ?? $activeCategory->name ?? 'Courses & Certificates';
+        $pageHeading = $showBundlesOnly
+            ? 'Unlimited & Bundle Programs'
+            : ($activeChildCategory->name ?? $activeSubcategory->name ?? $activeCategory->name ?? 'Courses & Certificates');
+        $pageDescription = $showBundlesOnly
+            ? 'Unlock curated learning paths, guided cohorts, and every premium resource.'
+            : 'Build job-ready skills with ' . config('app.name') . '. Flexible, instructor-led, and designed for real outcomes.';
+        $listingRoute = $showBundlesOnly ? route('bundle-programs') : route('premium-courses');
     @endphp
 
     <section class="breadcrumb-area section-padding img-bg-2" style="padding:50px">
@@ -109,12 +127,12 @@
                 <div class="section-heading mb-3 mb-lg-0">
                     <h2 class="section__title text-white">{{ $pageHeading }}</h2>
                     <p class="section__desc text-white-50 mb-0">
-                        Build job-ready skills with {{ config('app.name') }}. Flexible, instructor-led, and designed for real outcomes.
+                        {{ $pageDescription }}
                     </p>
                 </div>
                 <ul class="generic-list-item generic-list-item-white generic-list-item-arrow d-flex flex-wrap align-items-center">
                     <li><a href="{{ url('/') }}">Home</a></li>
-                    <li>Courses</li>
+                    <li>{{ $showBundlesOnly ? 'Bundle Programs' : 'Courses' }}</li>
                     @if($activeCategory)
                         <li>{{ $activeCategory->name }}</li>
                     @endif
@@ -134,7 +152,7 @@
             <div class="filter-bar mb-4">
                 <div class="filter-bar-inner d-flex flex-wrap align-items-center justify-content-between">
                     <p class="fs-14 mb-2 mb-md-0">
-                        We found <span class="text-black">{{ $totalAvailableCourses }}</span> courses available for you
+                        We found <span class="text-black">{{ $totalAvailableCourses }}</span> {{ $showBundlesOnly ? 'programs' : 'courses' }} available for you
                         @if($search !== '')
                             <span class="text-muted">matching “{{ $search }}”</span>
                         @endif
@@ -152,7 +170,7 @@
                                 </a>
                             </li>
                         </ul>
-                        <form method="GET" action="{{ route('premium-courses') }}" class="d-flex align-items-center">
+                        <form method="GET" action="{{ $listingRoute }}" class="d-flex align-items-center">
                             <input type="hidden" name="search" value="{{ $search }}">
                             <input type="hidden" name="category" value="{{ optional($activeCategory)->slug }}">
                             <input type="hidden" name="subcategory" value="{{ optional($activeSubcategory)->slug }}">
@@ -175,13 +193,13 @@
 
             <div class="row">
                 <div class="col-lg-8 mb-5">
-                    @if($full_access->isNotEmpty() && $all_courses->currentPage() === 1)
+                    @if($showBundlesOnly && $bundleItems->isNotEmpty())
                         <div class="section-heading mb-3">
                             <h5 class="section__title fs-20 mb-1">Unlimited &amp; Bundle Programs</h5>
                             <p class="section__desc mb-0">Unlock curated learning paths, guided cohorts, and every premium resource.</p>
                         </div>
                         <div class="row">
-                            @foreach($full_access as $bundle)
+                            @foreach($bundleItems as $bundle)
                                 @php
                                     $placeholderImage = asset('frontend/assets/images/img-loading.png');
                                     $rawImage = $bundle->image;
@@ -315,8 +333,14 @@
                                 </div>
                             @endforeach
                         </div>
+                        @if($bundlePaginator)
+                            <div class="text-center mt-4">
+                                {{ $bundlePaginator->onEachSide(1)->links('frontend.components.pagination') }}
+                            </div>
+                        @endif
                     @endif
 
+                    @unless($showBundlesOnly)
                     <div class="section-heading d-flex flex-wrap align-items-center justify-content-between mb-3">
                         <div>
                             <h5 class="section__title fs-20 mb-0">Online Courses</h5>
@@ -479,6 +503,7 @@
                     <div class="text-center mt-4">
                         {{ $all_courses->onEachSide(1)->links('frontend.components.pagination') }}
                     </div>
+                    @endunless
                 </div>
 
                 <div class="col-lg-4">
@@ -486,8 +511,8 @@
                         <div class="card card-item mb-4">
                             <div class="card-body">
                                 <h3 class="widget-title border-bottom pb-3 mb-4">Search Field</h3>
-                                <form method="GET" action="{{ route('premium-courses') }}" class="form-box d-flex align-items-center">
-                                    <input type="text" class="form-control me-2" name="search" placeholder="Search courses" value="{{ $search }}">
+                                <form method="GET" action="{{ $listingRoute }}" class="form-box d-flex align-items-center">
+                                    <input type="text" class="form-control me-2" name="search" placeholder="{{ $showBundlesOnly ? 'Search programs' : 'Search courses' }}" value="{{ $search }}">
                                     <input type="hidden" name="category" value="{{ optional($activeCategory)->slug }}">
                                     <input type="hidden" name="subcategory" value="{{ optional($activeSubcategory)->slug }}">
                                     <input type="hidden" name="child" value="{{ optional($activeChildCategory)->slug }}">
@@ -501,7 +526,7 @@
                             </div>
                         </div>
 
-                        @if($categories->isNotEmpty())
+                        @if(!$showBundlesOnly && $categories->isNotEmpty())
                             <div class="card card-item mb-4">
                                 <div class="card-body">
                                     <h3 class="widget-title border-bottom pb-3 mb-4">Categories</h3>
@@ -519,7 +544,7 @@
                             </div>
                         @endif
 
-                        @if($subcategories->isNotEmpty())
+                        @if(!$showBundlesOnly && $subcategories->isNotEmpty())
                             <div class="card card-item mb-4">
                                 <div class="card-body">
                                     <h3 class="widget-title border-bottom pb-3 mb-4">{{ $activeCategory->name }} Tracks</h3>
@@ -536,7 +561,7 @@
                             </div>
                         @endif
 
-                        @if($childCategories->isNotEmpty())
+                        @if(!$showBundlesOnly && $childCategories->isNotEmpty())
                             <div class="card card-item mb-4">
                                 <div class="card-body">
                                     <h3 class="widget-title border-bottom pb-3 mb-4">{{ $activeSubcategory->name }} Focus</h3>
@@ -556,7 +581,7 @@
                         <div class="card card-item mb-4">
                             <div class="card-body">
                                 <h3 class="widget-title border-bottom pb-3 mb-4">Price filter</h3>
-                                <form method="GET" action="{{ route('premium-courses') }}">
+                                <form method="GET" action="{{ $listingRoute }}">
                                     <div class="row mb-3">
                                         <div class="col-6 mb-2">
                                             <label class="form-label fs-12 text-uppercase text-muted">Min ($)</label>
@@ -601,7 +626,7 @@
                                             <span class="badge badge-light text-dark border mr-2 mb-2">Max: ${{ number_format((float) $selectedMax, 2) }}</span>
                                         @endif
                                     </div>
-                                    <a href="{{ route('premium-courses') }}" class="btn btn-sm btn-outline-warning w-100">Clear all filters</a>
+                                    <a href="{{ $listingRoute }}" class="btn btn-sm btn-outline-warning w-100">Clear all filters</a>
                                 </div>
                             </div>
                         @endif
