@@ -79,6 +79,7 @@ Route::get('who-we-are', [homeController::class, 'about_us'])->name('who_we_are'
 Route::get('search', [homeController::class, 'globalSearch'])->name('search');
 Route::get('course-categories', [homeController::class, 'courseCategories'])->name('course.categories');
 Route::get('price-and-plan', [homeController::class, 'pricingPlans'])->name('price.plan');
+Route::get('universities', [homeController::class, 'universitiesIndex'])->name('universities.index');
 Route::get('where-to-study/{id}', [HomeController::class, 'whereToStudyId'])
     ->whereNumber('id')                           // only digits
     ->name('where.to.studybyID');

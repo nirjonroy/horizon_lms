@@ -633,6 +633,59 @@ public function whereToStudy(string $slug)
     public function accommodation(){
         return view('frontend.accommodation');
     }
+
+    public function universitiesIndex(Request $request)
+    {
+        $search = trim((string) $request->query('search', ''));
+        $selectedDegree = $request->query('degree');
+        $selectedUniversity = $request->query('university');
+
+        $programsQuery = OnlineFee::query()
+            ->with([
+                'feesCategory:id,name',
+                'university:id,name,slug',
+            ])
+            ->where('status', 1);
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            $programsQuery->where(function ($query) use ($like) {
+                $query->where('program', 'like', $like)
+                    ->orWhere('short_name', 'like', $like);
+            });
+        }
+
+        if ($selectedDegree) {
+            $programsQuery->where('degree_id', $selectedDegree);
+        }
+
+        if ($selectedUniversity) {
+            $programsQuery->where('university_id', $selectedUniversity);
+        }
+
+        $programs = $programsQuery
+            ->orderByDesc('updated_at')
+            ->paginate(20)
+            ->withQueryString();
+
+        $degrees = FeesCategory::query()
+            ->orderBy('name')
+            ->get();
+
+        $universities = WhereToStudy::query()
+            ->where('is_done', 1)
+            ->orderBy('name')
+            ->get();
+
+        return view('frontend.universities_index', [
+            'programs' => $programs,
+            'degrees' => $degrees,
+            'universities' => $universities,
+            'search' => $search,
+            'selectedDegree' => $selectedDegree,
+            'selectedUniversity' => $selectedUniversity,
+        ]);
+    }
     
     public function premium_courses(Request $request){
         $search = trim((string) $request->input('search', ''));

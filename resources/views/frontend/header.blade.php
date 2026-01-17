@@ -257,7 +257,7 @@
                               <a href="#">Horizons Business </a>
                            </li> -->
                            <li class="mega-menu-has">
-                              <a href="javascript:void(0)">
+                              <a href="{{ route('universities.index') }}">
                                  Universities <i class="la la-angle-down fs-12"></i>
                               </a>
                               @php
@@ -487,7 +487,7 @@
                ->get();
          @endphp
          <li class="{{ $mobileUniversities->isNotEmpty() ? 'has-children' : '' }}">
-            <a href="javascript:void(0)">
+            <a href="{{ route('universities.index') }}">
                Universities
                @if($mobileUniversities->isNotEmpty())
                   <i class="la la-angle-down fs-12"></i>
