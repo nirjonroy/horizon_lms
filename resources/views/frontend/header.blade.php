@@ -476,7 +476,32 @@
                            </ul>
                         @endif
                      </li>
+         @endforeach
+               </ul>
+            @endif
+         </li>
+         @php
+            $mobileUniversities = $wheretoStudies ?? DB::table('where_to_studies')
+               ->where('is_done', 1)
+               ->orderBy('name')
+               ->get();
+         @endphp
+         <li class="{{ $mobileUniversities->isNotEmpty() ? 'has-children' : '' }}">
+            <a href="javascript:void(0)">
+               Universities
+               @if($mobileUniversities->isNotEmpty())
+                  <i class="la la-angle-down fs-12"></i>
+               @endif
+            </a>
+            @if($mobileUniversities->isNotEmpty())
+               <ul class="sub-menu">
+                  @foreach($mobileUniversities as $study)
+                     <li><a href="{{ route('where.to.study', $study->slug) }}">{{ $study->name }}</a></li>
                   @endforeach
+               </ul>
+            @else
+               <ul class="sub-menu">
+                  <li class="px-4 py-3 text-muted">{{ __('Partner universities coming soon.') }}</li>
                </ul>
             @endif
          </li>
