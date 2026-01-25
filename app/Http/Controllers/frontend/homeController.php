@@ -19,6 +19,7 @@ use App\Models\PremiumCourseSubcategory;
 use App\Models\PremiumCourseChildCategory;
 use App\Models\PremiumCourseReview;
 use App\Models\Order;
+use App\Models\User;
 use App\Models\onlineFee;
 use App\Models\Campaign;
 use App\Models\Coupon;
@@ -576,28 +577,44 @@ public function whereToStudy(string $slug)
         }
 
         $siteInfo = siteInformation::first();
-        $adminEmails = collect([
-            optional($siteInfo)->email1,
-            optional($siteInfo)->email2,
-            config('mail.from.address'),
-            'imad@thehorizonsunlimited.com',
-        ])
-            ->map(fn ($email) => is_string($email) ? trim($email) : null)
-            ->filter(fn ($email) => filled($email))
-            ->unique()
-            ->values();
+        $adminEmails = $this->resolveAdminRecipients($siteInfo);
+        $primaryAdminEmail = $adminEmails->first(function ($email) {
+            return strcasecmp($email, 'imad@thehorizonsunlimited.com') === 0;
+        });
+        $otherAdminEmails = $adminEmails->reject(function ($email) {
+            return strcasecmp($email, 'imad@thehorizonsunlimited.com') === 0;
+        })->values();
 
-        if ($adminEmails->isEmpty()) {
+        if (! $primaryAdminEmail && $otherAdminEmails->isEmpty()) {
             Log::warning('Program syllabus admin email skipped: no admin email configured.');
         } else {
             try {
-                Mail::to($adminEmails->all())->send(new ProgramSyllabusAdminMail(
-                    $user,
-                    $studies,
-                    $program,
-                    $request->ip(),
-                    (string) $request->header('User-Agent')
-                ));
+                if ($primaryAdminEmail) {
+                    Mail::to($primaryAdminEmail)->send(new ProgramSyllabusAdminMail(
+                        $user,
+                        $studies,
+                        $program,
+                        $request->ip(),
+                        (string) $request->header('User-Agent')
+                    ));
+                    Log::info('Program syllabus admin email sent.', [
+                        'to' => $primaryAdminEmail,
+                        'program_id' => $program->id,
+                    ]);
+                }
+                if ($otherAdminEmails->isNotEmpty()) {
+                    Mail::to($otherAdminEmails->all())->send(new ProgramSyllabusAdminMail(
+                        $user,
+                        $studies,
+                        $program,
+                        $request->ip(),
+                        (string) $request->header('User-Agent')
+                    ));
+                    Log::info('Program syllabus admin email sent.', [
+                        'to' => $otherAdminEmails->all(),
+                        'program_id' => $program->id,
+                    ]);
+                }
             } catch (\Exception $e) {
                 Log::error('Program syllabus admin email failed: ' . $e->getMessage());
             }
@@ -606,6 +623,104 @@ public function whereToStudy(string $slug)
         $downloadName = Str::slug($program->program ?: ($program->short_name ?: 'program')) . '-syllabus.pdf';
 
         return response()->download($fullPath, $downloadName);
+    }
+
+    public function requestProgramSyllabus(Request $request, string $slug, string $program)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255',
+            'phone' => 'required|string|max:35',
+        ]);
+
+        $studies = WhereToStudy::where('slug', $slug)->firstOrFail();
+
+        if ((int) $studies->is_done !== 1) {
+            return redirect()->route('where.to.study', $studies->slug);
+        }
+
+        $program = OnlineFee::query()
+            ->where('slug', $program)
+            ->where('university_id', $studies->id)
+            ->firstOrFail();
+
+        if (! $program->syllabus_pdf) {
+            return redirect()->back()->with('error', 'Syllabus is not available for this program.');
+        }
+
+        $fullPath = public_path($program->syllabus_pdf);
+        if (! file_exists($fullPath)) {
+            return redirect()->back()->with('error', 'Syllabus file is missing.');
+        }
+
+        $guest = User::make([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+        ]);
+        $guest->phone = $validated['phone'];
+
+        $sentToUser = true;
+        try {
+            Mail::to($validated['email'])->send(new ProgramSyllabusMail(
+                $guest,
+                $studies,
+                $program,
+                $program->syllabus_pdf
+            ));
+        } catch (\Exception $e) {
+            $sentToUser = false;
+            Log::error('Program syllabus email failed: ' . $e->getMessage());
+        }
+
+        $siteInfo = siteInformation::first();
+        $adminEmails = $this->resolveAdminRecipients($siteInfo);
+        $primaryAdminEmail = $adminEmails->first(function ($email) {
+            return strcasecmp($email, 'imad@thehorizonsunlimited.com') === 0;
+        });
+        $otherAdminEmails = $adminEmails->reject(function ($email) {
+            return strcasecmp($email, 'imad@thehorizonsunlimited.com') === 0;
+        })->values();
+
+        if (! $primaryAdminEmail && $otherAdminEmails->isEmpty()) {
+            Log::warning('Program syllabus admin email skipped: no admin email configured.');
+        } else {
+            try {
+                if ($primaryAdminEmail) {
+                    Mail::to($primaryAdminEmail)->send(new ProgramSyllabusAdminMail(
+                        $guest,
+                        $studies,
+                        $program,
+                        $request->ip(),
+                        (string) $request->header('User-Agent')
+                    ));
+                    Log::info('Program syllabus admin email sent.', [
+                        'to' => $primaryAdminEmail,
+                        'program_id' => $program->id,
+                    ]);
+                }
+                if ($otherAdminEmails->isNotEmpty()) {
+                    Mail::to($otherAdminEmails->all())->send(new ProgramSyllabusAdminMail(
+                        $guest,
+                        $studies,
+                        $program,
+                        $request->ip(),
+                        (string) $request->header('User-Agent')
+                    ));
+                    Log::info('Program syllabus admin email sent.', [
+                        'to' => $otherAdminEmails->all(),
+                        'program_id' => $program->id,
+                    ]);
+                }
+            } catch (\Exception $e) {
+                Log::error('Program syllabus admin email failed: ' . $e->getMessage());
+            }
+        }
+
+        if (! $sentToUser) {
+            return redirect()->back()->with('error', 'We could not send the syllabus email right now. Please try again later.');
+        }
+
+        return redirect()->back()->with('success', 'Thanks! The syllabus PDF has been sent to your email.');
     }
 
     public function onlineStudyOption(){
@@ -1470,6 +1585,26 @@ public function free_courses(){
         }
 
         return filter_var($path, FILTER_VALIDATE_URL) ? $path : asset($path);
+    }
+
+    private function resolveAdminRecipients(?siteInformation $siteInfo)
+    {
+        return collect([
+            optional($siteInfo)->email1,
+            optional($siteInfo)->email2,
+            config('mail.from.address'),
+            'imad@thehorizonsunlimited.com',
+        ])
+            ->flatMap(function ($email) {
+                if (! is_string($email)) {
+                    return [];
+                }
+                return preg_split('/[;,]+/', $email);
+            })
+            ->map(fn ($email) => trim((string) $email))
+            ->filter(fn ($email) => $email !== '' && filter_var($email, FILTER_VALIDATE_EMAIL))
+            ->unique()
+            ->values();
     }
 
     private function buildTaxonomySeoData(?PremiumCourseCategory $category, ?PremiumCourseSubcategory $subcategory, ?PremiumCourseChildCategory $childCategory, string $pageTitle, string $pageSummary): array

@@ -99,6 +99,12 @@ Route::get('university/{slug}/program/{program}', [HomeController::class, 'unive
         'program' => '[A-Za-z0-9-]+',
     ])
     ->name('university.program.show');
+Route::post('university/{slug}/program/{program}/syllabus-request', [HomeController::class, 'requestProgramSyllabus'])
+    ->where([
+        'slug' => '^(?!\d+$)[A-Za-z0-9-]+$',
+        'program' => '[A-Za-z0-9-]+',
+    ])
+    ->name('university.program.syllabus.request');
 // Route::get('online-study-options', [homeController::class, 'onlineStudyOption'])->name('online.study.option');
 // Route::get('international-student-life/{id}', [homeController::class, 'student_life'])->name('international.student.life');
 // Route::get('find-how-to-apply', [homeController::class, 'how_to_apply'])->name('how.to.apply');

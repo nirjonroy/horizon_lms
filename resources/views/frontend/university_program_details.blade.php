@@ -124,11 +124,52 @@
                         </p>
                         <a href="{{ $applyUrl }}" class="btn theme-btn w-100 mb-2" {!! $applyAttrs !!}>Apply Now</a>
                         @if($syllabusAvailable)
-                            @auth
-                                <a href="{{ $syllabusRoute }}" class="btn btn-outline-primary w-100 mb-2">Download syllabus (PDF)</a>
-                            @else
-                                <a href="{{ route('login') }}" class="btn btn-outline-primary w-100 mb-2">Log in to download syllabus</a>
-                            @endauth
+                            @if(session('success'))
+                                <div class="alert alert-success py-2 px-3 mb-2">{{ session('success') }}</div>
+                            @endif
+                            @if(session('error'))
+                                <div class="alert alert-danger py-2 px-3 mb-2">{{ session('error') }}</div>
+                            @endif
+                            <form action="{{ route('university.program.syllabus.request', ['slug' => $studies->slug, 'program' => $program->slug]) }}" method="POST" class="mb-2">
+                                @csrf
+                                <div class="mb-2">
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        class="form-control @error('name') is-invalid @enderror"
+                                        placeholder="Full name"
+                                        value="{{ old('name', optional(auth()->user())->name) }}"
+                                        required>
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-2">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        class="form-control @error('email') is-invalid @enderror"
+                                        placeholder="Email address"
+                                        value="{{ old('email', optional(auth()->user())->email) }}"
+                                        required>
+                                    @error('email')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <div class="mb-2">
+                                    <input
+                                        type="text"
+                                        name="phone"
+                                        class="form-control @error('phone') is-invalid @enderror"
+                                        placeholder="Phone number"
+                                        value="{{ old('phone', optional(auth()->user())->phone) }}"
+                                        required>
+                                    @error('phone')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                                <button type="submit" class="btn btn-outline-primary w-100">Email me the syllabus</button>
+                            </form>
                         @endif
                         <a href="{{ route('consultation.step1') }}" class="btn btn-outline-primary w-100">Talk to an advisor</a>
                     </div>

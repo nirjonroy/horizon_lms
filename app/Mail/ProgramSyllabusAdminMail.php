@@ -26,13 +26,17 @@ class ProgramSyllabusAdminMail extends Mailable
     public function build(): self
     {
         $programTitle = $this->program->program ?: ($this->program->short_name ?: 'Program');
-        $subject = 'Syllabus downloaded: ' . $programTitle . ' | ' . $this->studies->name;
+        $subject = 'Syllabus requested: ' . $programTitle . ' | ' . $this->studies->name;
         $programUrl = route('university.program.show', [
             'slug' => $this->studies->slug,
             'program' => $this->program->slug,
         ]);
+        $fromAddress = config('mail.from.address');
+        $fromName = config('mail.from.name', 'Horizons Unlimited');
+        $replyEmail = $this->user->email;
+        $replyName = $this->user->name ?: 'Student';
 
-        return $this->subject($subject)
+        $mail = $this->subject($subject)
             ->view('emails.program_syllabus_admin')
             ->with([
                 'programTitle' => $programTitle,
@@ -43,6 +47,7 @@ class ProgramSyllabusAdminMail extends Mailable
                 'shortDescription' => strip_tags((string) ($this->program->short_description ?? '')),
                 'userName' => $this->user->name ?: 'Student',
                 'userEmail' => $this->user->email,
+                'userPhone' => $this->user->phone ?? null,
                 'userId' => $this->user->id,
                 'ipAddress' => $this->ipAddress,
                 'userAgent' => $this->userAgent,
@@ -63,5 +68,15 @@ class ProgramSyllabusAdminMail extends Mailable
                     return $cleaned !== '' ? Str::limit($cleaned, 140) : null;
                 })->filter()->values()->all(),
             ]);
+
+        if ($fromAddress) {
+            $mail->from($fromAddress, $fromName);
+        }
+
+        if ($replyEmail) {
+            $mail->replyTo($replyEmail, $replyName);
+        }
+
+        return $mail;
     }
 }

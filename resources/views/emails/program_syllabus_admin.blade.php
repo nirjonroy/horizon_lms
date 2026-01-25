@@ -21,9 +21,9 @@
                     </tr>
                     <tr>
                         <td style="padding:32px;">
-                            <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#0f172a;">Syllabus download alert</h1>
+                            <h1 style="margin:0 0 12px;font-size:24px;line-height:1.3;color:#0f172a;">Syllabus request alert</h1>
                             <p style="margin:0 0 18px;font-size:15px;line-height:1.6;color:#475569;">
-                                A user has downloaded a program syllabus. Details are below.
+                                A user has requested a program syllabus. Details are below.
                             </p>
 
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 20px;">
@@ -36,14 +36,17 @@
                                     <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;font-weight:bold;">{{ $universityName }}</td>
                                 </tr>
                                 <tr>
-                                    <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#64748b;">Downloaded at</td>
+                                    <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#64748b;">Requested at</td>
                                     <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;font-weight:bold;">{{ $downloadedAt }}</td>
                                 </tr>
                                 <tr>
                                     <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#64748b;">User</td>
                                     <td style="padding:10px 0;border-bottom:1px solid #e2e8f0;font-size:14px;color:#0f172a;font-weight:bold;">
-                                        {{ $userName }} (ID: {{ $userId }})<br>
+                                        {{ $userName }} (ID: {{ $userId ?: 'Guest' }})<br>
                                         <a href="mailto:{{ $userEmail }}" style="color:#2563eb;text-decoration:none;">{{ $userEmail }}</a>
+                                        @if(!empty($userPhone))
+                                            <br>{{ $userPhone }}
+                                        @endif
                                     </td>
                                 </tr>
                                 <tr>
@@ -110,7 +113,7 @@
                             @endif
 
                             <p style="margin:20px 0 0;font-size:13px;line-height:1.6;color:#64748b;">
-                                This is an automated alert when a syllabus is downloaded.
+                                This is an automated alert when a syllabus is requested.
                             </p>
                         </td>
                     </tr>
