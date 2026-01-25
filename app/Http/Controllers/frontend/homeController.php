@@ -78,9 +78,14 @@ class homeController extends Controller
         });
         $homeCategories = Cache::remember('home_categories', $cacheTtl, function () {
             return PremiumCourseCategory::withCount(['courses' => function ($query) {
-                    $query->where('status', 1);
+                    $query->where('status', 1)
+                        ->where('type', 'single');
                 }])
                 ->where('show_on_homepage', true)
+                ->whereHas('courses', function ($query) {
+                    $query->where('status', 1)
+                        ->where('type', 'single');
+                })
                 ->orderBy('name')
                 ->get();
         });
@@ -1033,11 +1038,21 @@ public function free_courses(){
 
         $categories = PremiumCourseCategory::query()
             ->withCount([
-                'subcategories',
+                'subcategories as subcategories_count' => function ($query) {
+                    $query->whereHas('courses', function ($courseQuery) {
+                        $courseQuery->where('type', 'single')
+                            ->where('status', 1);
+                    });
+                },
                 'courses as premium_courses_count' => function ($query) {
-                    $query->where('type', 'single');
+                    $query->where('type', 'single')
+                        ->where('status', 1);
                 },
             ])
+            ->whereHas('courses', function ($query) {
+                $query->where('type', 'single')
+                    ->where('status', 1);
+            })
             ->when($search !== '', function ($query) use ($search) {
                 $like = '%' . $search . '%';
                 $query->where(function ($inner) use ($like) {
@@ -1208,8 +1223,13 @@ public function free_courses(){
 
         $subcategories = $category->subcategories()
             ->withCount(['courses as premium_courses_count' => function ($query) {
-                $query->where('type', 'single');
+                $query->where('type', 'single')
+                    ->where('status', 1);
             }])
+            ->whereHas('courses', function ($query) {
+                $query->where('type', 'single')
+                    ->where('status', 1);
+            })
             ->orderBy('name')
             ->get();
 
@@ -1234,8 +1254,13 @@ public function free_courses(){
 
         $childCategories = $subcategory->childCategories()
             ->withCount(['courses as premium_courses_count' => function ($query) {
-                $query->where('type', 'single');
+                $query->where('type', 'single')
+                    ->where('status', 1);
             }])
+            ->whereHas('courses', function ($query) {
+                $query->where('type', 'single')
+                    ->where('status', 1);
+            })
             ->orderBy('name')
             ->get();
 
