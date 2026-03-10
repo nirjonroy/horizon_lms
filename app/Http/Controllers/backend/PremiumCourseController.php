@@ -490,13 +490,26 @@ class PremiumCourseController extends Controller
             return null;
         }
 
-        $keywordsArray = array_filter(array_map('trim', explode(',', $keywords)));
+        $keywords = html_entity_decode((string) $keywords, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $keywords = strip_tags($keywords);
+        $keywords = str_replace(["\r", "\n"], ' ', $keywords);
+        $keywords = preg_replace('/\s+/', ' ', $keywords);
+
+        $keywordsArray = array_filter(array_map('trim', preg_split('/[,\|]+/', $keywords)));
 
         if (empty($keywordsArray)) {
             return null;
         }
 
-        return implode(', ', $keywordsArray);
+        $normalized = implode(', ', $keywordsArray);
+        $limit = 255;
+
+        if (strlen($normalized) > $limit) {
+            $normalized = substr($normalized, 0, $limit);
+            $normalized = rtrim($normalized, " \t\n\r\0\x0B,");
+        }
+
+        return $normalized;
     }
 
     private function ensureValidTaxonomy(?int $categoryId, ?int $subcategoryId, ?int $childCategoryId): void
