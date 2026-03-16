@@ -13,7 +13,7 @@
                     </ul>
                 </div>
                 <p class="fs-14 text-gray mb-0">
-                    {{ __('Review your selected premium courses and proceed to checkout confidently.') }}
+                    {{ __('Review your selected courses, e-books, bundles, and access plans before checkout.') }}
                 </p>
             </div>
         </div>
@@ -24,9 +24,9 @@
             @if (!count($cart))
                 <div class="bg-gray p-5 rounded-rounded text-center">
                     <h3 class="fs-24 font-weight-bold mb-2">{{ __('Your cart is empty') }}</h3>
-                    <p class="text-gray mb-4">{{ __('Browse our premium catalog and add courses to unlock your next milestone.') }}</p>
-                    <a href="{{ route('premium-courses') }}" class="btn theme-btn">
-                        {{ __('Browse courses') }} <i class="la la-arrow-right icon ms-1"></i>
+                    <p class="text-gray mb-4">{{ __('Browse our catalog and add a course, e-book, bundle, or access plan to continue.') }}</p>
+                    <a href="{{ route('ebooks.index') }}" class="btn theme-btn">
+                        {{ __('Browse e-books') }} <i class="la la-arrow-right icon ms-1"></i>
                     </a>
                 </div>
             @else
@@ -51,24 +51,30 @@
                                                 $image = asset($image);
                                             }
                                             $image = $image ?: asset('frontend/assets/images/img-loading.png');
-                                            $slug = $item['slug'] ?? null;
-                                            $courseUrl = $slug ? route('course.show', $slug) : '#';
+                                            $itemUrl = $item['url'] ?? (
+                                                (($item['type'] ?? 'course') === 'ebook')
+                                                    ? (isset($item['slug']) ? route('ebooks.show', $item['slug']) : '#')
+                                                    : (isset($item['slug']) ? route('course.show', $item['slug']) : '#')
+                                            );
+                                            $itemSubtitle = $item['subtitle'] ?? $item['instructor'] ?? $item['author'] ?? __('Horizons Faculty');
+                                            $itemType = $item['type_label'] ?? ucfirst($item['type'] ?? 'Item');
                                         @endphp
                                         <tr>
                                             <th scope="row">
                                                 <div class="media media-card">
-                                                    <a href="{{ $courseUrl }}" class="media-img me-0">
+                                                    <a href="{{ $itemUrl }}" class="media-img me-0">
                                                         <img src="{{ $image }}" alt="{{ $item['title'] ?? 'Cart image' }}" />
                                                     </a>
                                                 </div>
                                             </th>
                                             <td>
-                                                <a href="{{ $courseUrl }}" class="text-black font-weight-semi-bold d-block mb-1">
-                                                    {{ $item['title'] ?? __('Untitled course') }}
+                                                <a href="{{ $itemUrl }}" class="text-black font-weight-semi-bold d-block mb-1">
+                                                    {{ $item['title'] ?? __('Untitled item') }}
                                                 </a>
                                                 <p class="fs-14 text-gray lh-20 mb-0">
-                                                    {{ __('By') }}
-                                                    <span class="text-color">{{ $item['instructor'] ?? __('Horizons Faculty') }}</span>
+                                                    <span class="text-color">{{ $itemType }}</span>
+                                                    <span class="mx-1">|</span>
+                                                    <span>{{ $itemSubtitle }}</span>
                                                 </p>
                                             </td>
                                             <td>
@@ -95,7 +101,7 @@
                                             </td>
                                             <td>
                                                 <a
-                                                    href="{{ route('cart.remove', $id) }}"
+                                                    href="{{ route('cart.remove', $item['key'] ?? $id) }}"
                                                     class="icon-element icon-element-xs shadow-sm border-0"
                                                     data-toggle="tooltip"
                                                     data-placement="top"

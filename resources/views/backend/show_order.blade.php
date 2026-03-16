@@ -50,7 +50,8 @@
                 <table class="table table-bordered">
                   <thead>
                     <tr>
-                      <th>Course</th>
+                      <th>Item</th>
+                      <th>Type</th>
                       <th class="text-center">Qty</th>
                       <th class="text-right">Unit Price</th>
                       <th class="text-right">Line Total</th>
@@ -62,12 +63,13 @@
                       @php($qty = $it['quantity'] ?? 1)
                       <tr>
                         <td>{{ $it['title'] ?? ('#'.$it['id']) }}</td>
+                        <td>{{ $it['type_label'] ?? ucfirst($it['type'] ?? 'Item') }}</td>
                         <td class="text-center">{{ $qty }}</td>
                         <td class="text-right">${{ number_format((float)($it['price'] ?? 0), 2) }}</td>
                         <td class="text-right">${{ number_format(((float)($it['price'] ?? 0)) * $qty, 2) }}</td>
                       </tr>
                     @empty
-                      <tr><td colspan="4" class="text-center text-muted">No items</td></tr>
+                      <tr><td colspan="5" class="text-center text-muted">No items</td></tr>
                     @endforelse
                   </tbody>
                 </table>

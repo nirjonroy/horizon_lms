@@ -15,14 +15,7 @@ class PremiumCourseReviewController extends Controller
     {
         $course = PremiumCourse::where('slug', $slug)->firstOrFail();
 
-        $hasPurchased = Order::query()
-            ->where('user_id', $request->user()->id)
-            ->where('status', 'paid')
-            ->whereRaw(
-                "JSON_CONTAINS(orders.items, JSON_OBJECT('id', ?), '$')",
-                [$course->id]
-            )
-            ->exists();
+        $hasPurchased = Order::hasPaidItem($request->user()->id, Order::ITEM_TYPE_COURSE, (int) $course->id);
 
         if (! $hasPurchased) {
             return redirect()

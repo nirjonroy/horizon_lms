@@ -2,6 +2,7 @@
   @php
             $siteInfo = DB::table('site_information')->first();
             $exploreMenuCategories = $exploreMenuCategories ?? collect();
+            $ebookMenuCategories = $ebookMenuCategories ?? collect();
             $buildCourseUrl = function (array $filters = []) {
                 $filters = array_filter($filters, fn ($value) => filled($value));
 
@@ -250,6 +251,30 @@
                       </form>
                      <nav class="main-menu">
                         <ul>
+                           <li class="has-children">
+                              <a href="{{ route('ebooks.index') }}">
+                                 E-Books
+                                 <i class="la la-angle-down fs-12"></i>
+                              </a>
+                              <ul class="dropdown-menu-item">
+                                 <li>
+                                    <a href="{{ route('ebooks.index') }}">{{ __('All E-Books') }}</a>
+                                 </li>
+                                 <li>
+                                    <a href="{{ route('ebook-plans.index') }}">{{ __('Access Plans') }}</a>
+                                 </li>
+                                 <li>
+                                    <a href="{{ route('ebook-collections.index') }}">{{ __('Bundle Collections') }}</a>
+                                 </li>
+                                 @foreach($ebookMenuCategories as $ebookCategory)
+                                    <li>
+                                       <a href="{{ route('ebooks.category.show', $ebookCategory) }}">
+                                          {{ $ebookCategory->name }}
+                                       </a>
+                                    </li>
+                                 @endforeach
+                              </ul>
+                           </li>
                             <li>
                                <a href="{{ route('price.plan') }}">Price and Plan </a>
                             </li>
@@ -318,9 +343,11 @@
                                         $itemImage = $itemImage ?: asset('frontend/assets/images/img-loading.png');
                                         $itemQuantity = $item['quantity'] ?? 1;
                                         $itemPrice = (float) ($item['price'] ?? 0);
+                                        $itemUrl = $item['url'] ?? '#';
+                                        $itemSubtitle = $item['subtitle'] ?? $item['instructor'] ?? $item['author'] ?? 'Horizons Faculty';
                                     @endphp
                                     <li class="media media-card">
-                                        <a href="{{ isset($item['slug']) ? route('course.show', $item['slug']) : '#' }}" class="media-img">
+                                        <a href="{{ $itemUrl }}" class="media-img">
                                             <img
                                                src="{{ $itemImage }}"
                                                alt="{{ $item['title'] ?? 'Cart image' }}"
@@ -328,12 +355,12 @@
                                         </a>
                                         <div class="media-body">
                                            <h5>
-                                              <a href="{{ isset($item['slug']) ? route('course.show', $item['slug']) : '#' }}">
-                                                {{ \Illuminate\Support\Str::limit($item['title'] ?? 'Course', 70) }}
+                                              <a href="{{ $itemUrl }}">
+                                                {{ \Illuminate\Support\Str::limit($item['title'] ?? 'Item', 70) }}
                                               </a>
                                            </h5>
                                            <span class="d-block lh-18 py-1">
-                                              {{ $itemQuantity }} × {{ $item['instructor'] ?? 'Horizons Faculty' }}
+                                              {{ $itemQuantity }} × {{ $itemSubtitle }}
                                            </span>
                                            <p class="text-black font-weight-semi-bold lh-18 mb-0">
                                               ${{ number_format($itemPrice, 2) }}
@@ -343,7 +370,7 @@
                                            </p>
                                         </div>
                                         @auth
-                                            <a href="{{ route('cart.remove', $item['id']) }}" class="icon-element icon-element-xs shadow-sm ms-2" title="Remove">
+                                            <a href="{{ route('cart.remove', $item['key'] ?? $item['id']) }}" class="icon-element icon-element-xs shadow-sm ms-2" title="Remove">
                                                 <i class="la la-times"></i>
                                             </a>
                                         @endauth
@@ -479,6 +506,28 @@
          @endforeach
                </ul>
             @endif
+         </li>
+         <li class="has-children">
+            <a href="{{ route('ebooks.index') }}">
+               E-Books
+               <i class="la la-angle-down fs-12"></i>
+            </a>
+            <ul class="sub-menu">
+               <li>
+                  <a href="{{ route('ebooks.index') }}">{{ __('All E-Books') }}</a>
+               </li>
+               <li>
+                  <a href="{{ route('ebook-plans.index') }}">{{ __('Access Plans') }}</a>
+               </li>
+               <li>
+                  <a href="{{ route('ebook-collections.index') }}">{{ __('Bundle Collections') }}</a>
+               </li>
+               @foreach($ebookMenuCategories as $ebookCategory)
+                  <li>
+                     <a href="{{ route('ebooks.category.show', $ebookCategory) }}">{{ $ebookCategory->name }}</a>
+                  </li>
+               @endforeach
+            </ul>
          </li>
          @php
             $mobileUniversities = $wheretoStudies ?? DB::table('where_to_studies')

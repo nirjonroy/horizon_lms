@@ -24,6 +24,8 @@ use App\Models\onlineFee;
 use App\Models\Campaign;
 use App\Models\Coupon;
 use App\Models\Booking;
+use App\Models\EbookAccessPlan;
+use App\Models\EbookCollection;
 use App\Models\internationalStudentLife;
 use App\Models\Testimonial;
 use App\Models\HomeHighlight;
@@ -1184,12 +1186,40 @@ public function free_courses(){
 
     public function pricingPlans()
     {
-        $siteInfo = siteInformation::first();
-        $planTypes = ['monthly', 'yearly', 'lifetime', 'weekly'];
+          $siteInfo = siteInformation::first();
+          $planTypes = ['monthly', 'yearly', 'lifetime', 'weekly'];
 
-        $featuredPlans = collect($planTypes)->map(function ($type) {
-            return PremiumCourse::query()
-                ->where('status', 1)
+          $ebookFeaturedPlans = EbookAccessPlan::query()
+              ->with('collection')
+              ->where('status', 1)
+              ->orderByDesc('featured')
+              ->orderBy('sort_order')
+              ->take(3)
+              ->get();
+
+          $ebookPlans = EbookAccessPlan::query()
+              ->with('collection')
+              ->where('status', 1)
+              ->orderByDesc('featured')
+              ->orderBy('sort_order')
+              ->paginate(9, ['*'], 'ebook_plan_page');
+
+          $ebookCollections = EbookCollection::query()
+              ->withCount(['ebooks' => function ($query) {
+                  $query->where('status', 1);
+              }])
+              ->where('status', 1)
+              ->whereHas('ebooks', function ($query) {
+                  $query->where('status', 1);
+              })
+              ->orderByDesc('featured')
+              ->orderBy('sort_order')
+              ->take(6)
+              ->get();
+
+          $featuredPlans = collect($planTypes)->map(function ($type) {
+              return PremiumCourse::query()
+                  ->where('status', 1)
                 ->where('type', $type)
                 ->orderByDesc('updated_at')
                 ->first();
@@ -1227,11 +1257,14 @@ public function free_courses(){
             ],
         ];
 
-        return view('frontend.pricing', [
-            'featuredPlans' => $featuredPlans,
-            'plans' => $plans,
-            'faqs' => $faqs,
-            'siteInfo' => $siteInfo,
+          return view('frontend.pricing', [
+              'ebookFeaturedPlans' => $ebookFeaturedPlans,
+              'ebookPlans' => $ebookPlans,
+              'ebookCollections' => $ebookCollections,
+              'featuredPlans' => $featuredPlans,
+              'plans' => $plans,
+              'faqs' => $faqs,
+              'siteInfo' => $siteInfo,
             'heroPlan' => $heroPlan,
         ]);
     }
@@ -1264,14 +1297,7 @@ public function free_courses(){
 
         $hasPurchased = false;
         if (auth()->check()) {
-            $hasPurchased = Order::query()
-                ->where('user_id', auth()->id())
-                ->where('status', 'paid')
-                ->whereRaw(
-                    "JSON_CONTAINS(orders.items, JSON_OBJECT('id', ?), '$')",
-                    [$course->id]
-                )
-                ->exists();
+            $hasPurchased = Order::hasPaidItem(auth()->id(), Order::ITEM_TYPE_COURSE, (int) $course->id);
         }
 
         // Get most popular courses (excluding current)
@@ -1295,8 +1321,11 @@ public function free_courses(){
                 DB::raw('COUNT(orders.id) AS order_count')
             )
             ->leftJoin('orders', function ($join) {
-                // assuming orders.items is JSON array containing {"id": course_id}
-                $join->on(DB::raw("JSON_CONTAINS(orders.items, JSON_OBJECT('id', premium_courses.id), '$')"), '=', DB::raw('1'));
+                $join->on(
+                    DB::raw("JSON_CONTAINS(orders.items, JSON_OBJECT('type', 'course', 'id', premium_courses.id), '$')"),
+                    '=',
+                    DB::raw('1')
+                );
             })
             ->where('premium_courses.id', '!=', $course->id)
             ->where('premium_courses.status', 1)

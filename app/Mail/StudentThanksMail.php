@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Mail;
 
 use App\Models\Order;
@@ -21,7 +22,7 @@ class StudentThanksMail extends Mailable
 
     public function build()
     {
-        return $this->subject('Thanks for your purchase 🎉')
-                    ->markdown('emails.student-thanks');
+        return $this->subject('Thanks for your Horizons order')
+            ->markdown('emails.student-thanks');
     }
 }

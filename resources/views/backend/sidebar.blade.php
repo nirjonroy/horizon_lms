@@ -132,6 +132,42 @@
             </ul>
           </li>
 
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-book-reader"></i>
+              <p>
+                E-Book Catalog
+                <i class="fas fa-angle-left right"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <a href="{{ route('admin.ebooks.index') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>E-Books</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('admin.ebook-categories.index') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Categories</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('admin.ebook-collections.index') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Bundle Collections</p>
+                </a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ route('admin.ebook-access-plans.index') }}" class="nav-link">
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>Access Plans</p>
+                </a>
+              </li>
+            </ul>
+          </li>
+
           <!--<li class="nav-item has-treeview">-->
           <!--  <a href="#" class="nav-link">-->
           <!--    <i class="nav-icon fas fa-life-ring"></i>-->

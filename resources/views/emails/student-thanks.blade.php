@@ -1,14 +1,18 @@
 @component('mail::message')
-# Thanks for Purchasing 🎉
+# Thanks for Your Purchase
 
 Hi {{ $user->name }},
 
-We’ve received your order of **{{ count($order->items) }} course(s)**.
+We have received your order of **{{ count($order->items) }} item(s)**.
 
 **Order Total:** ${{ number_format($order->total, 2) }}
 
-👉 Your LMS username & password will be sent within **12 hours**.  
-Stay connected with us!
+### Ordered Items
+@foreach($order->items as $item)
+- {{ $item['title'] ?? ('#' . ($item['id'] ?? 'N/A')) }} x {{ $item['quantity'] ?? 1 }}
+@endforeach
+
+If your order includes e-books, bundles, or access plans, the matching download and library access is now available while you are logged in.
 
 Thanks,<br>
 {{ config('app.name') }}

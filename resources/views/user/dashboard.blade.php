@@ -52,11 +52,11 @@
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
                     <div>
                         <h2 class="h4 mb-1 text-primary">My Orders</h2>
-                        <p class="text-muted mb-0">Track your purchases and enrollment status.</p>
+                        <p class="text-muted mb-0">Track your paid courses, e-books, bundles, and access plans.</p>
                     </div>
                     <div class="mt-3 mt-md-0">
-                        <a href="{{ route('premium-courses') }}" class="btn theme-btn">
-                            Browse Courses <i class="la la-arrow-right ms-1"></i>
+                        <a href="{{ route('ebooks.index') }}" class="btn theme-btn">
+                            Browse E-Books <i class="la la-arrow-right ms-1"></i>
                         </a>
                     </div>
                 </div>
@@ -66,7 +66,7 @@
                         <thead class="table-light">
                             <tr>
                                 <th scope="col">Order #</th>
-                                <th scope="col">Course</th>
+                                <th scope="col">Items</th>
                                 <th scope="col">Amount</th>
                                 <th scope="col">Status</th>
                                 <th scope="col">Date</th>
@@ -76,9 +76,10 @@
                             @forelse($orders as $order)
                                 @php
                                     $items = is_string($order->items) ? json_decode($order->items, true) : $order->items;
-                                    $courseTitle = $items[0]['title'] ?? 'N/A';
+                                    $primaryItem = $items[0]['title'] ?? 'N/A';
+                                    $extraItemCount = max(0, count($items ?? []) - 1);
                                     $statusClass = match(strtolower($order->status)) {
-                                        'completed' => 'bg-success-subtle text-success',
+                                        'paid', 'completed' => 'bg-success-subtle text-success',
                                         'pending' => 'bg-warning-subtle text-warning',
                                         'failed' => 'bg-danger-subtle text-danger',
                                         default => 'bg-secondary-subtle text-secondary'
@@ -86,7 +87,12 @@
                                 @endphp
                                 <tr>
                                     <td class="fw-semibold">#{{ str_pad($order->id, 5, '0', STR_PAD_LEFT) }}</td>
-                                    <td>{{ $courseTitle }}</td>
+                                    <td>
+                                        {{ $primaryItem }}
+                                        @if($extraItemCount > 0)
+                                            <small class="text-muted d-block">+ {{ $extraItemCount }} more</small>
+                                        @endif
+                                    </td>
                                     <td class="fw-semibold">${{ number_format($order->total, 2) }}</td>
                                     <td>
                                         <span class="badge {{ $statusClass }}">{{ ucfirst($order->status) }}</span>
@@ -96,8 +102,8 @@
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-4">
-                                        <p class="mb-2 text-muted">You haven't purchased any courses yet.</p>
-                                        <a href="{{ route('premium-courses') }}" class="btn btn-outline-primary btn-sm">Explore Courses</a>
+                                        <p class="mb-2 text-muted">You have not purchased any products yet.</p>
+                                        <a href="{{ route('ebooks.index') }}" class="btn btn-outline-primary btn-sm">Explore E-Books</a>
                                     </td>
                                 </tr>
                             @endforelse

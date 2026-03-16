@@ -3,16 +3,21 @@
 
 @section('content')
 @php
-    $heroImage = optional($heroPlan)->image ? asset($heroPlan->image) : asset('frontend/assets/images/slider-img2.jpg');
-    $heroTitle = optional($heroPlan)->title ?? 'Study Online with Top Universities';
-    $heroDescription = \Illuminate\Support\Str::limit(strip_tags(optional($heroPlan)->short_description), 140) ?: 'Transparent tuition, installment plans, and personalized guidance for every learning path.';
-    $heroPrice = (float) (optional($heroPlan)->price ?? 0);
+    $featuredDigitalPlan = $ebookFeaturedPlans->first() ?? null;
+    $heroImage = $featuredDigitalPlan && $featuredDigitalPlan->image
+        ? asset($featuredDigitalPlan->image)
+        : (optional($heroPlan)->image ? asset($heroPlan->image) : asset('frontend/assets/images/slider-img2.jpg'));
+    $heroTitle = $featuredDigitalPlan?->name ?? optional($heroPlan)->title ?? 'Study Online with Top Universities';
+    $heroDescription = $featuredDigitalPlan
+        ? (\Illuminate\Support\Str::limit(strip_tags($featuredDigitalPlan->short_description ?: $featuredDigitalPlan->description), 140) ?: 'Flexible access plans for the full Horizons e-book library.')
+        : (\Illuminate\Support\Str::limit(strip_tags(optional($heroPlan)->short_description), 140) ?: 'Transparent tuition, installment plans, and personalized guidance for every learning path.');
+    $heroPrice = (float) ($featuredDigitalPlan?->price ?? optional($heroPlan)->price ?? 0);
 @endphp
 <section class="py-5" style="background:linear-gradient(120deg,#5428f1,#6f7bff);">
     <div class="container">
         <div class="row align-items-center g-4">
             <div class="col-lg-6 text-white">
-                <p class="text-uppercase small mb-2">Featured Plan</p>
+                <p class="text-uppercase small mb-2">{{ $featuredDigitalPlan ? 'Featured E-Book Plan' : 'Featured Plan' }}</p>
                 <h1 class="display-5 fw-bold mb-3" style="color:white">{{ $heroTitle }}</h1>
                 <p class="mb-4 lead">{{ $heroDescription }}</p>
                 @if($heroPrice > 0)
@@ -21,10 +26,12 @@
                     <p class="fs-4 mb-4"><span class="fw-semibold text-success">Free</span> access</p>
                 @endif
                 <div class="d-flex flex-wrap gap-3">
-                    @if($heroPlan)
+                    @if($featuredDigitalPlan)
+                        <a href="{{ route('ebook-plans.show', $featuredDigitalPlan->slug) }}" class="btn btn-light text-primary px-4">View Plan</a>
+                    @elseif($heroPlan)
                         <a href="{{ route('course.show', $heroPlan->slug) }}" class="btn btn-light text-primary px-4">View Course</a>
                     @endif
-                    <a href="{{ route('consultation.step1') }}" class="btn btn-outline-light px-4">Talk to Advisor</a>
+                    <a href="{{ route('ebook-collections.index') }}" class="btn btn-outline-light px-4">Browse Bundles</a>
                 </div>
             </div>
             <div class="col-lg-6">
@@ -35,6 +42,127 @@
         </div>
     </div>
 </section>
+
+@if(($ebookFeaturedPlans ?? collect())->isNotEmpty())
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <p class="text-uppercase small text-muted mb-1">E-Book access</p>
+            <h2 class="fw-bold mb-2">Monthly, Yearly, Lifetime, and Bundle Plans</h2>
+            <p class="text-muted">Sell dynamic access offers for all books or for a specific collection.</p>
+        </div>
+        <div class="row g-4">
+            @foreach($ebookFeaturedPlans as $plan)
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-lg rounded-4">
+                        <div class="card-body p-4 d-flex flex-column">
+                            <span class="badge bg-primary-subtle text-primary mb-2">{{ $plan->durationLabel() }}</span>
+                            <h3 class="h5 fw-bold">{{ $plan->name }}</h3>
+                            <p class="text-muted">{{ \Illuminate\Support\Str::limit(strip_tags($plan->short_description ?: $plan->description), 90) }}</p>
+                            <div class="my-3">
+                                <span class="display-5 fw-bold text-primary">${{ number_format((float) ($plan->price ?? 0), 0) }}</span>
+                                @if($plan->old_price && (float) $plan->old_price > (float) $plan->price)
+                                    <span class="text-muted small d-block"><s>${{ number_format((float) $plan->old_price, 0) }}</s></span>
+                                @endif
+                            </div>
+                            <ul class="list-unstyled text-muted flex-grow-1">
+                                <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ $plan->scopeLabel() }}</li>
+                                <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ ucfirst($plan->billing_cycle) }} billing</li>
+                                <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ $plan->durationLabel() }}</li>
+                            </ul>
+                            <a href="{{ route('ebook-plans.show', $plan->slug) }}" class="btn theme-btn w-100 mt-3">
+                                View Plan
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+@if(($ebookCollections ?? collect())->isNotEmpty())
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <div>
+                <p class="text-uppercase text-muted small mb-1">Bundle collections</p>
+                <h2 class="h5 fw-bold mb-0">Curated E-Book Packs</h2>
+            </div>
+            <a href="{{ route('ebook-collections.index') }}" class="btn btn-outline-primary mt-3 mt-md-0">All Collections</a>
+        </div>
+        <div class="row g-4">
+            @foreach($ebookCollections as $collection)
+                <div class="col-md-4 col-lg-4">
+                    <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
+                        <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="w-100" style="height: 220px; object-fit: cover;">
+                        <div class="card-body d-flex flex-column">
+                            <h3 class="h5 fw-bold">{{ $collection->name }}</h3>
+                            <p class="text-muted flex-grow-1">{{ \Illuminate\Support\Str::limit(strip_tags($collection->excerpt ?: $collection->description), 90) }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>${{ number_format((float) ($collection->price ?? 0), 2) }}</strong>
+                                    <small class="text-muted d-block">{{ $collection->ebooks_count }} books</small>
+                                </div>
+                                <a href="{{ route('ebook-collections.show', $collection->slug) }}" class="btn btn-sm theme-btn">View Bundle</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+@if(($ebookPlans ?? null) && $ebookPlans->count())
+<section class="py-5">
+    <div class="container">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+            <div>
+                <p class="text-uppercase text-muted small mb-1">All e-book plans</p>
+                <h2 class="h5 fw-bold mb-0">Full E-Book Access Catalog</h2>
+            </div>
+            <small class="text-muted">Use dynamic plans for all-books access or one curated collection.</small>
+        </div>
+        <div class="table-responsive shadow-sm bg-white rounded-4">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Plan</th>
+                        <th>Scope</th>
+                        <th>Billing</th>
+                        <th>Duration</th>
+                        <th>Price</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($ebookPlans as $plan)
+                        <tr>
+                            <td>
+                                <p class="fw-semibold mb-0">{{ $plan->name }}</p>
+                                <small class="text-muted">{{ \Illuminate\Support\Str::limit(strip_tags($plan->short_description ?: $plan->description), 60) }}</small>
+                            </td>
+                            <td>{{ $plan->scopeLabel() }}</td>
+                            <td>{{ ucfirst($plan->billing_cycle) }}</td>
+                            <td>{{ $plan->durationLabel() }}</td>
+                            <td>${{ number_format((float) ($plan->price ?? 0), 2) }}</td>
+                            <td class="text-end">
+                                <a href="{{ route('ebook-plans.show', $plan->slug) }}" class="btn btn-sm btn-outline-primary">View Plan</a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+        <div class="pt-4 d-flex justify-content-center">
+            {{ $ebookPlans->links() }}
+        </div>
+    </div>
+</section>
+@endif
 
 <section class="py-5 bg-light">
     <div class="container">

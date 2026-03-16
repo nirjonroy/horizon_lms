@@ -3,6 +3,7 @@
 /public/storage
 /storage/*.key
 /vendor
+book-to-go.sql
 .env
 .env.backup
 .phpunit.result.cache
@@ -17,6 +18,7 @@ yarn-error.log
 public/uploads/**
 public/premium-courses/**
 public/website-images/**
+public/ebooks/remote-cache/**
 
 # laravel runtime
 storage/**

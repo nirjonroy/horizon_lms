@@ -10,9 +10,9 @@
         @if($cartItems->isEmpty())
             <div class="alert alert-light border text-center">
                 <h4 class="mb-2">Your cart is empty</h4>
-                <p class="mb-3">Add a course first, then come back to complete your payment.</p>
-                <a href="{{ route('premium-courses') }}" class="btn theme-btn">
-                    Browse Courses <i class="la la-arrow-right icon ms-1"></i>
+                <p class="mb-3">Add a course, e-book, bundle, or access plan first, then come back to complete your payment.</p>
+                <a href="{{ route('ebooks.index') }}" class="btn theme-btn">
+                    Browse E-Books <i class="la la-arrow-right icon ms-1"></i>
                 </a>
             </div>
         @else
@@ -46,12 +46,13 @@
                                 @foreach($cartItems as $item)
                                     @php
                                         $quantity = max(1, (int) ($item['quantity'] ?? 1));
-                                        $lineTotal = (float) $item['price'] * $quantity;
+                                        $lineTotal = (float) ($item['price'] ?? 0) * $quantity;
+                                        $itemType = $item['type_label'] ?? ucfirst($item['type'] ?? 'Item');
                                     @endphp
                                     <li class="d-flex align-items-center justify-content-between py-2 border-bottom">
                                         <div>
-                                            <p class="mb-1 fw-semibold text-dark">{{ $item['title'] }}</p>
-                                            <small class="text-muted">× {{ $quantity }}</small>
+                                            <p class="mb-1 fw-semibold text-dark">{{ $item['title'] ?? 'Untitled item' }}</p>
+                                            <small class="text-muted">{{ $itemType }} x {{ $quantity }}</small>
                                         </div>
                                         <span class="fw-semibold">${{ number_format($lineTotal, 2) }}</span>
                                     </li>

@@ -27,6 +27,10 @@ use App\Http\Controllers\backend\PremiumCourseSubcategoryController;
 use App\Http\Controllers\backend\OrderController;
 use App\Http\Controllers\backend\CouponController;
 use App\Http\Controllers\backend\CampaignController;
+use App\Http\Controllers\backend\EbookCategoryController;
+use App\Http\Controllers\backend\EbookCollectionController as AdminEbookCollectionController;
+use App\Http\Controllers\backend\EbookAccessPlanController as AdminEbookAccessPlanController;
+use App\Http\Controllers\backend\EbookController as AdminEbookController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\backend\RedirectRuleController;
@@ -34,6 +38,9 @@ use App\Http\Controllers\backend\PageController;
 use App\Http\Controllers\backend\TestimonialController;
 use App\Http\Controllers\backend\HomeHighlightController;
 use App\Http\Controllers\backend\PartnerController;
+use App\Http\Controllers\frontend\EbookAccessPlanController as FrontendEbookAccessPlanController;
+use App\Http\Controllers\frontend\EbookCollectionController as FrontendEbookCollectionController;
+use App\Http\Controllers\frontend\EbookController as FrontendEbookController;
 use App\Http\Controllers\frontend\PageController as FrontendPageController;
 use App\Models\PremiumCourseCategory;
 use App\Models\PremiumCourseChildCategory;
@@ -119,6 +126,21 @@ Route::permanentRedirect('Horizons-global-courses', 'courses');
 Route::permanentRedirect('Horizons-global-free-courses', 'free-courses');
 Route::get('course/{slug}', [HomeController::class, 'premium_course_details'])
     ->name('course.show');
+Route::get('ebooks', [FrontendEbookController::class, 'index'])->name('ebooks.index');
+Route::get('ebooks/category/{category:slug}', [FrontendEbookController::class, 'category'])->name('ebooks.category.show');
+Route::get('ebook-plans', [FrontendEbookAccessPlanController::class, 'index'])->name('ebook-plans.index');
+Route::get('ebook-plans/{slug}', [FrontendEbookAccessPlanController::class, 'show'])->name('ebook-plans.show');
+Route::get('ebook-collections', [FrontendEbookCollectionController::class, 'index'])->name('ebook-collections.index');
+Route::get('ebook-collections/{slug}', [FrontendEbookCollectionController::class, 'show'])->name('ebook-collections.show');
+Route::get('ebook-asset/{ebook}/{field}', [FrontendEbookController::class, 'asset'])
+    ->whereNumber('ebook')
+    ->where('field', 'cover|meta')
+    ->name('ebooks.asset');
+Route::get('ebook/{slug}/preview', [FrontendEbookController::class, 'preview'])->name('ebooks.preview');
+Route::get('ebook/{slug}/download', [FrontendEbookController::class, 'download'])
+    ->middleware('auth')
+    ->name('ebooks.download');
+Route::get('ebook/{slug}', [FrontendEbookController::class, 'show'])->name('ebooks.show');
 
 Route::prefix('courses')->group(function () {
     Route::get('{category:slug}', [HomeController::class, 'showCategory'])
@@ -311,6 +333,31 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/permium-course-toggle/{course}', [PremiumCourseController::class, 'toggleStatus'])->name('courses.toggle');
     Route::delete('/permium-course-delete/{id}', [PremiumCourseController::class, 'destroy'])->name('courses.destroy');
 
+    Route::get('/ebooks', [AdminEbookController::class, 'index'])->name('ebooks.index');
+    Route::get('/ebooks/create', [AdminEbookController::class, 'create'])->name('ebooks.create');
+    Route::post('/ebooks', [AdminEbookController::class, 'store'])->name('ebooks.store');
+    Route::get('/ebooks/{ebook}/edit', [AdminEbookController::class, 'edit'])->name('ebooks.edit');
+    Route::put('/ebooks/{ebook}', [AdminEbookController::class, 'update'])->name('ebooks.update');
+    Route::delete('/ebooks/{ebook}', [AdminEbookController::class, 'destroy'])->name('ebooks.destroy');
+
+    Route::get('/ebook-categories', [EbookCategoryController::class, 'index'])->name('ebook-categories.index');
+    Route::post('/ebook-categories', [EbookCategoryController::class, 'store'])->name('ebook-categories.store');
+    Route::get('/ebook-categories/{ebookCategory}/edit', [EbookCategoryController::class, 'edit'])->name('ebook-categories.edit');
+    Route::put('/ebook-categories/{ebookCategory}', [EbookCategoryController::class, 'update'])->name('ebook-categories.update');
+    Route::delete('/ebook-categories/{ebookCategory}', [EbookCategoryController::class, 'destroy'])->name('ebook-categories.destroy');
+
+    Route::get('/ebook-collections', [AdminEbookCollectionController::class, 'index'])->name('ebook-collections.index');
+    Route::post('/ebook-collections', [AdminEbookCollectionController::class, 'store'])->name('ebook-collections.store');
+    Route::get('/ebook-collections/{ebookCollection}/edit', [AdminEbookCollectionController::class, 'edit'])->name('ebook-collections.edit');
+    Route::put('/ebook-collections/{ebookCollection}', [AdminEbookCollectionController::class, 'update'])->name('ebook-collections.update');
+    Route::delete('/ebook-collections/{ebookCollection}', [AdminEbookCollectionController::class, 'destroy'])->name('ebook-collections.destroy');
+
+    Route::get('/ebook-access-plans', [AdminEbookAccessPlanController::class, 'index'])->name('ebook-access-plans.index');
+    Route::post('/ebook-access-plans', [AdminEbookAccessPlanController::class, 'store'])->name('ebook-access-plans.store');
+    Route::get('/ebook-access-plans/{ebookAccessPlan}/edit', [AdminEbookAccessPlanController::class, 'edit'])->name('ebook-access-plans.edit');
+    Route::put('/ebook-access-plans/{ebookAccessPlan}', [AdminEbookAccessPlanController::class, 'update'])->name('ebook-access-plans.update');
+    Route::delete('/ebook-access-plans/{ebookAccessPlan}', [AdminEbookAccessPlanController::class, 'destroy'])->name('ebook-access-plans.destroy');
+
     Route::post('premium-course-categories/{premiumCourseCategory}/toggle-home', [PremiumCourseCategoryController::class, 'toggleHome'])
         ->name('premium-course-categories.toggle-home');
 
@@ -356,7 +403,13 @@ Route::get('university/{slug}/program/{program}/syllabus', [HomeController::clas
 Route::post('course/{slug}/reviews', [PremiumCourseReviewController::class, 'store'])
     ->name('course.reviews.store');
 Route::post('/add-to-cart/{id}', [CartController::class, 'addToCart'])->name('cart.add');
+Route::post('/ebooks/add-to-cart/{id}', [CartController::class, 'addEbookToCart'])->name('ebooks.cart.add');
+Route::post('/ebook-plans/add-to-cart/{id}', [CartController::class, 'addEbookPlanToCart'])->name('ebook-plans.cart.add');
+Route::post('/ebook-collections/add-to-cart/{id}', [CartController::class, 'addEbookCollectionToCart'])->name('ebook-collections.cart.add');
     Route::get('/buy-now/{id}', [CartController::class, 'buyNow'])->name('cart.buy_now');
+    Route::get('/ebooks/buy-now/{id}', [CartController::class, 'buyEbookNow'])->name('ebooks.cart.buy_now');
+    Route::get('/ebook-plans/buy-now/{id}', [CartController::class, 'buyEbookPlanNow'])->name('ebook-plans.cart.buy_now');
+    Route::get('/ebook-collections/buy-now/{id}', [CartController::class, 'buyEbookCollectionNow'])->name('ebook-collections.cart.buy_now');
     Route::get('/cart', [CartController::class, 'viewCart'])->name('cart.view');
     Route::get('/remove-cart/{id}', [CartController::class, 'removeCart'])->name('cart.remove');
     Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.coupon.apply');

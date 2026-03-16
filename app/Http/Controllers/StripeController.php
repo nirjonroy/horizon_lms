@@ -7,6 +7,7 @@ use App\Models\CouponRedemption;
 use App\Models\Order;
 use App\Services\CartTotalsService;
 use App\Services\CouponSessionManager;
+use App\Services\EbookAccessGrantService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Stripe\Checkout\Session as StripeSession;
@@ -16,10 +17,16 @@ class StripeController extends Controller
 {
     public function checkout(Request $request)
     {
-        $cart = session()->get('cart', []);
+        if (! auth()->check()) {
+            return redirect()->route('login')->with('error', 'Login to continue to payment.');
+        }
+
+        $cart = $this->normaliseCartItems(session()->get('cart', []));
         if (empty($cart)) {
             return redirect()->route('cart.view')->with('error', 'Cart is empty');
         }
+
+        session()->put('cart', $cart);
 
         $hadCoupon = session()->has('coupon');
         $coupon = CouponSessionManager::current($cart, auth()->id(), true);
@@ -53,13 +60,14 @@ class StripeController extends Controller
         Stripe::setApiKey(config('services.stripe.secret'));
 
         $titles = collect($cart)->pluck('title')->filter()->implode(', ');
+        [$cartName, $cartDescription] = $this->checkoutLineItemDetails($cart, $titles);
         $lineItems = [
             [
                 'price_data' => [
                     'currency' => 'usd',
                     'product_data' => [
-                        'name' => 'Horizons Premium Courses',
-                        'description' => Str::limit($titles ?: 'Selected premium courses', 300),
+                        'name' => $cartName,
+                        'description' => Str::limit($cartDescription, 300),
                     ],
                     'unit_amount' => (int) round($totals['total'] * 100),
                 ],
@@ -84,8 +92,12 @@ class StripeController extends Controller
 
     public function success(Request $request)
     {
+        if (! auth()->check()) {
+            return redirect()->route('login')->with('error', 'Login to finish your order.');
+        }
+
         $sessionId = $request->query('session_id');
-        $cart = session()->get('cart', []);
+        $cart = $this->normaliseCartItems(session()->get('cart', []));
 
         if (empty($cart)) {
             session()->forget('checkout_summary');
@@ -157,12 +169,15 @@ class StripeController extends Controller
         string $status = 'paid',
         ?string $sessionId = null,
         ?string $paymentIntentId = null,
-        ?string $forcedCouponCode = null
+        ?string $forcedCouponCode = null,
+        ?EbookAccessGrantService $ebookAccessGrantService = null
     ) {
         if (empty($cart)) {
             session()->forget('checkout_summary');
             return redirect()->route('cart.view')->with('error', 'No items found for order');
         }
+
+        $cart = $this->normaliseCartItems($cart);
 
         try {
             $order = Order::create([
@@ -183,6 +198,8 @@ class StripeController extends Controller
             session()->forget('checkout_summary');
             return redirect()->route('cart.view')->with('error', 'Failed to save order: ' . $e->getMessage());
         }
+
+        ($ebookAccessGrantService ?: app(EbookAccessGrantService::class))->grantForOrder($order);
 
         if ($coupon && $discount > 0) {
             try {
@@ -226,5 +243,55 @@ class StripeController extends Controller
         session()->forget('checkout_summary');
 
         return view('frontend.payment-cancel');
+    }
+
+    private function checkoutLineItemDetails(array $cart, string $titles): array
+    {
+        $types = collect($cart)
+            ->pluck('type')
+            ->filter()
+            ->unique()
+            ->values();
+
+        if ($types->count() === 1 && $types->first() === Order::ITEM_TYPE_EBOOK) {
+            return ['Horizons E-Books', $titles ?: 'Selected e-books'];
+        }
+
+        if ($types->count() === 1 && $types->first() === Order::ITEM_TYPE_EBOOK_PLAN) {
+            return ['Horizons E-Book Access Plans', $titles ?: 'Selected access plan'];
+        }
+
+        if ($types->count() === 1 && $types->first() === Order::ITEM_TYPE_EBOOK_COLLECTION) {
+            return ['Horizons E-Book Collections', $titles ?: 'Selected bundle collection'];
+        }
+
+        if ($types->count() === 1 && $types->first() === Order::ITEM_TYPE_COURSE) {
+            return ['Horizons Courses', $titles ?: 'Selected courses'];
+        }
+
+        return ['Horizons Digital Products', $titles ?: 'Selected digital products'];
+    }
+
+    private function normaliseCartItems(array $cart): array
+    {
+        $normalised = [];
+
+        foreach ($cart as $key => $item) {
+            if (! is_array($item)) {
+                continue;
+            }
+
+            $type = $item['type'] ?? Order::ITEM_TYPE_COURSE;
+            $id = (int) ($item['id'] ?? 0);
+            $resolvedKey = $item['key'] ?? ($id > 0 ? $type . ':' . $id : (string) $key);
+
+            $item['type'] = $type;
+            $item['type_label'] = $item['type_label'] ?? Order::itemTypeLabel($type);
+            $item['key'] = $resolvedKey;
+
+            $normalised[$resolvedKey] = $item;
+        }
+
+        return $normalised;
     }
 }

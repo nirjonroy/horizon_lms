@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Mail;
 
 use App\Models\Order;
@@ -21,7 +22,7 @@ class NewOrderMail extends Mailable
 
     public function build()
     {
-        return $this->subject('New Course Order Received')
-                    ->markdown('emails.new-order');
+        return $this->subject('New Horizons order received')
+            ->markdown('emails.new-order');
     }
 }

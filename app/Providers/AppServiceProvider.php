@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Models\EbookCategory;
 use App\Models\PremiumCourseCategory;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\View;
@@ -41,6 +42,18 @@ class AppServiceProvider extends ServiceProvider
                     ->get();
             });
 
+            $ebookCategories = Cache::remember('ebook_menu_categories', 3600, function () {
+                return EbookCategory::withCount(['ebooks' => function ($query) {
+                    $query->where('status', 1);
+                }])
+                    ->where('status', 1)
+                    ->whereHas('ebooks', function ($query) {
+                        $query->where('status', 1);
+                    })
+                    ->orderBy('name')
+                    ->get();
+            });
+
             $cartItems = collect(session('cart', []));
             $headerCartCount = (int) $cartItems->reduce(function ($carry, $item) {
                 return $carry + (int) ($item['quantity'] ?? 1);
@@ -61,6 +74,7 @@ class AppServiceProvider extends ServiceProvider
 
             $view->with([
                 'exploreMenuCategories' => $categories,
+                'ebookMenuCategories' => $ebookCategories,
                 'headerCartItems' => $cartItems->values(),
                 'headerCartCount' => $headerCartCount,
                 'headerCartSubtotal' => $headerCartSubtotal,
