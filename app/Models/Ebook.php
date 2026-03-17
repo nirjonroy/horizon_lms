@@ -38,6 +38,12 @@ class Ebook extends Model
         'meta_title',
         'meta_description',
         'meta_image',
+        'seo_author',
+        'publisher',
+        'copyright',
+        'site_name',
+        'keywords',
+        'robots',
         'published_at',
         'status',
     ];

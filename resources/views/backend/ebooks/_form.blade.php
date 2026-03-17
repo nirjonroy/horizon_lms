@@ -195,4 +195,47 @@
         <label>Meta Description</label>
         <textarea name="meta_description" class="form-control" rows="3">{{ old('meta_description', $ebook?->meta_description) }}</textarea>
     </div>
+
+    <hr>
+    <h5 class="mb-3">Advanced SEO</h5>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>SEO Author</label>
+                <input type="text" name="seo_author" class="form-control" value="{{ old('seo_author', $ebook?->seo_author) }}" placeholder="Meta author name">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Publisher</label>
+                <input type="text" name="publisher" class="form-control" value="{{ old('publisher', $ebook?->publisher) }}" placeholder="Publisher name">
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Copyright</label>
+                <input type="text" name="copyright" class="form-control" value="{{ old('copyright', $ebook?->copyright) }}" placeholder="Copyright owner">
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <label>Site Name</label>
+                <input type="text" name="site_name" class="form-control" value="{{ old('site_name', $ebook?->site_name) }}" placeholder="Horizons Unlimited">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>Keywords</label>
+        <input type="text" name="keywords" class="form-control" value="{{ old('keywords', $ebook?->keywords) }}" placeholder="Keyword 1, Keyword 2, Keyword 3">
+    </div>
+
+    <div class="form-group">
+        <label>Robots</label>
+        <input type="text" name="robots" class="form-control" value="{{ old('robots', $ebook?->robots ?: 'index, follow') }}" placeholder="index, follow">
+    </div>
 </div>

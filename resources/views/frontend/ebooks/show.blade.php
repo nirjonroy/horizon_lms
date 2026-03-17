@@ -8,19 +8,55 @@
     $canPurchase = $ebook->canBePurchased();
     $previewUrl = $previewUrl ?? null;
     $previewPageLimit = $previewPageLimit ?? 5;
-    $pageTitle = $ebook->meta_title ?: $ebook->title;
-    $pageDescription = $ebook->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($ebook->excerpt ?: $ebook->description ?: ''), 160, '');
+    $siteInfo = DB::table('site_information')->first();
+    $normalizeUrl = function ($path) {
+        if (! $path) {
+            return null;
+        }
+
+        return filter_var($path, FILTER_VALIDATE_URL) ? $path : asset($path);
+    };
+    $seoTitle = $ebook->meta_title ?: $ebook->title;
+    $seoDescription = $ebook->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($ebook->excerpt ?: $ebook->description ?: ''), 160, '');
+    $siteName = $ebook->site_name ?: ($siteInfo->title ?? config('app.name'));
+    $seoAuthor = $ebook->seo_author ?: ($ebook->author ?: ($siteInfo->title ?? config('app.name')));
+    $publisher = $ebook->publisher ?: $siteName;
+    $copyright = $ebook->copyright ?: $siteName;
+    $keywordsContent = $ebook->keywords ?: collect([$ebook->title, $ebook->author, optional($ebook->category)->name, 'ebooks'])
+        ->filter()
+        ->implode(', ');
+    $robots = $ebook->robots ?: 'index, follow';
+    $favicon = $normalizeUrl($siteInfo->logo ?? null);
 @endphp
 
-@section('title', $pageTitle)
+@section('title', $seoTitle)
 @section('seos')
-    <meta name="title" content="{{ $pageTitle }}">
-    <meta name="description" content="{{ $pageDescription }}">
-    <meta property="og:title" content="{{ $pageTitle }}">
-    <meta property="og:description" content="{{ $pageDescription }}">
+    <meta name="robots" content="{{ $robots }}">
+    <meta name="title" content="{{ $seoTitle }}">
+    <meta name="description" content="{{ $seoDescription }}">
+    <meta name="keywords" content="{{ $keywordsContent }}">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDescription }}">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="book">
     <meta property="og:image" content="{{ $metaImage }}">
+    <meta name="author" content="{{ $seoAuthor }}">
+    <meta name="publisher" content="{{ $publisher }}">
+    <meta name="copyright" content="{{ $copyright }}">
+    <meta name="language" content="english">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <link rel="canonical" href="{{ url()->current() }}">
+    @if($favicon)
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ $favicon }}">
+    @endif
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDescription }}">
+    <meta name="twitter:image" content="{{ $metaImage }}">
+    <meta name="twitter:site" content="{{ url()->current() }}">
 @endsection
 
 @section('content')

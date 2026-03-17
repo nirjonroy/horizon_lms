@@ -1,27 +1,72 @@
 @extends('frontend.app')
 
 @php
-    $pageTitle = $activeCategory ? $activeCategory->name . ' E-Books' : 'E-Books';
-    $pageDescription = $activeCategory && $activeCategory->description
+    $SeoSettings = \App\Models\SeoSetting::forPage('ebooks');
+    $siteInfo = DB::table('site_information')->first();
+    $keywordsArray = $SeoSettings && $SeoSettings->keywords ? json_decode($SeoSettings->keywords, true) : [];
+    if (! is_array($keywordsArray)) {
+        $keywordsArray = [];
+    }
+
+    $normalizeUrl = function ($path) {
+        if (! $path) {
+            return null;
+        }
+
+        return filter_var($path, FILTER_VALIDATE_URL) ? $path : asset($path);
+    };
+
+    $firstEbook = method_exists($ebooks, 'items') ? collect($ebooks->items())->first() : null;
+    $firstEbookImage = $firstEbook ? $firstEbook->metaImageUrl() : null;
+    $fallbackTitle = $activeCategory ? $activeCategory->name . ' E-Books' : 'E-Books';
+    $fallbackDescription = $activeCategory && $activeCategory->description
         ? strip_tags($activeCategory->description)
         : 'Browse uploaded and imported e-books by category.';
-    $metaImage = null;
-    if ($activeCategory && $activeCategory->image) {
-        $metaImage = filter_var($activeCategory->image, FILTER_VALIDATE_URL) ? $activeCategory->image : asset($activeCategory->image);
-    }
+    $rawMetaImage = $activeCategory?->image ?: optional($SeoSettings)->image ?: $firstEbookImage ?: ($siteInfo->logo ?? null);
+    $metaImage = $normalizeUrl($rawMetaImage);
+    $seoTitle = $activeCategory ? $fallbackTitle : (optional($SeoSettings)->seo_title ?? $fallbackTitle);
+    $seoDescription = $activeCategory ? $fallbackDescription : (optional($SeoSettings)->seo_description ?? $fallbackDescription);
+    $siteName = optional($SeoSettings)->site_name ?? ($siteInfo->title ?? config('app.name'));
+    $seoAuthor = optional($SeoSettings)->author ?? ($siteInfo->title ?? config('app.name'));
+    $publisher = optional($SeoSettings)->publisher ?? $seoAuthor;
+    $copyright = optional($SeoSettings)->copyright ?? ($siteInfo->title ?? config('app.name'));
+    $favicon = $normalizeUrl($siteInfo->logo ?? null);
+    $keywordsContent = ! empty($keywordsArray) ? implode(', ', $keywordsArray) : ($activeCategory ? $activeCategory->name . ', ebooks' : 'ebooks');
+    $robots = 'index, follow';
 @endphp
 
-@section('title', $pageTitle)
+@section('title', $seoTitle)
 @section('seos')
-    <meta name="title" content="{{ $pageTitle }}">
-    <meta name="description" content="{{ \Illuminate\Support\Str::limit($pageDescription, 160, '') }}">
-    <meta property="og:title" content="{{ $pageTitle }}">
-    <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($pageDescription, 160, '') }}">
+    <meta name="robots" content="{{ $robots }}">
+    <meta name="title" content="{{ $seoTitle }}">
+    <meta name="description" content="{{ \Illuminate\Support\Str::limit($seoDescription, 160, '') }}">
+    <meta name="keywords" content="{{ $keywordsContent }}">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ \Illuminate\Support\Str::limit($seoDescription, 160, '') }}">
     <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:locale" content="en_US">
     <meta property="og:type" content="website">
     @if($metaImage)
         <meta property="og:image" content="{{ $metaImage }}">
     @endif
+    <meta name="author" content="{{ $seoAuthor }}">
+    <meta name="publisher" content="{{ $publisher }}">
+    <meta name="copyright" content="{{ $copyright }}">
+    <meta name="language" content="english">
+    <meta name="distribution" content="global">
+    <meta name="rating" content="general">
+    <link rel="canonical" href="{{ url()->current() }}">
+    @if($favicon)
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ $favicon }}">
+    @endif
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ \Illuminate\Support\Str::limit($seoDescription, 160, '') }}">
+    @if($metaImage)
+        <meta name="twitter:image" content="{{ $metaImage }}">
+    @endif
+    <meta name="twitter:site" content="{{ url()->current() }}">
 @endsection
 
 @section('content')
@@ -30,8 +75,8 @@
     <div class="container">
         <div class="breadcrumb-content d-flex flex-wrap align-items-center justify-content-between">
             <div class="section-heading mb-3 mb-lg-0">
-                <h1 class="section__title text-white">{{ $pageTitle }}</h1>
-                <p class="section__desc text-white-50 mb-0">{{ $pageDescription }}</p>
+                <h1 class="section__title text-white">{{ $seoTitle }}</h1>
+                <p class="section__desc text-white-50 mb-0">{{ $seoDescription }}</p>
             </div>
             <ul class="generic-list-item generic-list-item-white generic-list-item-arrow d-flex flex-wrap align-items-center">
                 <li><a href="{{ route('home.index') }}">Home</a></li>

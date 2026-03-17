@@ -111,6 +111,12 @@ class EbookController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
             'meta_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'seo_author' => ['nullable', 'string', 'max:255'],
+            'publisher' => ['nullable', 'string', 'max:255'],
+            'copyright' => ['nullable', 'string', 'max:255'],
+            'site_name' => ['nullable', 'string', 'max:255'],
+            'keywords' => ['nullable', 'string'],
+            'robots' => ['nullable', 'string', 'max:255'],
             'published_at' => ['nullable', 'date'],
             'status' => ['required', 'boolean'],
         ]);
@@ -134,6 +140,12 @@ class EbookController extends Controller
         $ebook->description = $data['description'] ?? null;
         $ebook->meta_title = $data['meta_title'] ?? $data['title'];
         $ebook->meta_description = $data['meta_description'] ?? Str::limit(strip_tags($data['excerpt'] ?? $data['description'] ?? ''), 155, '');
+        $ebook->seo_author = $data['seo_author'] ?? null;
+        $ebook->publisher = $data['publisher'] ?? null;
+        $ebook->copyright = $data['copyright'] ?? null;
+        $ebook->site_name = $data['site_name'] ?? null;
+        $ebook->keywords = $this->normaliseKeywords($data['keywords'] ?? null);
+        $ebook->robots = trim((string) ($data['robots'] ?? '')) ?: 'index, follow';
         $ebook->published_at = $data['published_at'] ?? null;
         $ebook->status = (bool) $data['status'];
 
@@ -197,6 +209,26 @@ class EbookController extends Controller
         }
 
         return $slug;
+    }
+
+    private function normaliseKeywords(?string $keywords): ?string
+    {
+        if ($keywords === null) {
+            return null;
+        }
+
+        $keywords = html_entity_decode((string) $keywords, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $keywords = strip_tags($keywords);
+        $keywords = str_replace(["\r", "\n"], ' ', $keywords);
+        $keywords = preg_replace('/\s+/', ' ', $keywords);
+
+        $keywordsArray = array_filter(array_map('trim', preg_split('/[,\|]+/', $keywords)));
+
+        if (empty($keywordsArray)) {
+            return null;
+        }
+
+        return implode(', ', $keywordsArray);
     }
 
     private function flushMenuCache(): void
