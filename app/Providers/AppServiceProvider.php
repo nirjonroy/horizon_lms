@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Models\EbookCategory;
 use App\Models\PremiumCourseCategory;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +28,22 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        if (! $this->app->runningInConsole()) {
+            $root = rtrim((string) request()->root(), '/');
+            if ($root !== '') {
+                $normalizedRoot = preg_replace('#/public$#', '', $root);
+
+                if (is_string($normalizedRoot) && $normalizedRoot !== '') {
+                    URL::forceRootUrl($normalizedRoot);
+
+                    $scheme = parse_url($normalizedRoot, PHP_URL_SCHEME);
+                    if (is_string($scheme) && $scheme !== '') {
+                        URL::forceScheme($scheme);
+                    }
+                }
+            }
+        }
+
         View::composer('frontend.header', function ($view) {
             $categories = Cache::remember('explore_menu_categories', 3600, function () {
                 return PremiumCourseCategory::with([
