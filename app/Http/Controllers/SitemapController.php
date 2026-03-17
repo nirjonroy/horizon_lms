@@ -3,6 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Blog;
+use App\Models\Ebook;
+use App\Models\EbookAccessPlan;
+use App\Models\EbookCategory;
+use App\Models\EbookCollection;
 use App\Models\PremiumCourse;
 use App\Models\PremiumCourseCategory;
 use App\Models\PremiumCourseChildCategory;
@@ -29,6 +33,22 @@ class SitemapController extends Controller
                 ->merge($this->premiumCourseChildCategoryUrls())
                 ->merge($this->premiumCourseUrls())
                 ->merge($this->blogUrls());
+
+            return $this->buildXml($urls);
+        });
+
+        return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+    }
+
+    public function ebooks(): Response
+    {
+        $xml = Cache::remember('ebooks-sitemap.xml', now()->addHour(), function () {
+            $urls = collect()
+                ->merge($this->ebookStaticUrls())
+                ->merge($this->ebookCategoryUrls())
+                ->merge($this->ebookUrls())
+                ->merge($this->ebookAccessPlanUrls())
+                ->merge($this->ebookCollectionUrls());
 
             return $this->buildXml($urls);
         });
@@ -150,6 +170,102 @@ class SitemapController extends Controller
                 'priority' => 0.5,
             ],
         ]);
+    }
+
+    private function ebookStaticUrls(): Collection
+    {
+        $now = now();
+
+        return collect([
+            [
+                'loc' => route('ebooks.index'),
+                'lastmod' => $now,
+                'changefreq' => 'daily',
+                'priority' => 0.8,
+            ],
+            [
+                'loc' => route('ebook-plans.index'),
+                'lastmod' => $now,
+                'changefreq' => 'weekly',
+                'priority' => 0.7,
+            ],
+            [
+                'loc' => route('ebook-collections.index'),
+                'lastmod' => $now,
+                'changefreq' => 'weekly',
+                'priority' => 0.7,
+            ],
+        ]);
+    }
+
+    private function ebookCategoryUrls(): Collection
+    {
+        return EbookCategory::query()
+            ->where('status', 1)
+            ->whereHas('ebooks', function ($query) {
+                $query->where('status', 1);
+            })
+            ->get()
+            ->filter(fn ($category) => filled($category->slug ?? null))
+            ->map(function ($category) {
+                return [
+                    'loc' => route('ebooks.category.show', ['category' => $category->slug]),
+                    'lastmod' => $category->updated_at ?? $category->created_at,
+                    'changefreq' => 'weekly',
+                    'priority' => 0.7,
+                ];
+            });
+    }
+
+    private function ebookUrls(): Collection
+    {
+        return Ebook::query()
+            ->where('status', 1)
+            ->get()
+            ->filter(fn ($ebook) => filled($ebook->slug ?? null))
+            ->map(function ($ebook) {
+                return [
+                    'loc' => route('ebooks.show', ['slug' => $ebook->slug]),
+                    'lastmod' => $ebook->updated_at ?? $ebook->published_at ?? $ebook->created_at,
+                    'changefreq' => 'weekly',
+                    'priority' => 0.7,
+                ];
+            });
+    }
+
+    private function ebookAccessPlanUrls(): Collection
+    {
+        return EbookAccessPlan::query()
+            ->where('status', 1)
+            ->get()
+            ->filter(fn ($plan) => filled($plan->slug ?? null))
+            ->map(function ($plan) {
+                return [
+                    'loc' => route('ebook-plans.show', ['slug' => $plan->slug]),
+                    'lastmod' => $plan->updated_at ?? $plan->created_at,
+                    'changefreq' => 'weekly',
+                    'priority' => 0.6,
+                ];
+            });
+    }
+
+    private function ebookCollectionUrls(): Collection
+    {
+        return EbookCollection::query()
+            ->where('status', 1)
+            ->whereHas('ebooks', function ($query) {
+                $query->where('status', 1);
+            })
+            ->get()
+            ->filter(fn ($collection) => filled($collection->slug ?? null))
+            ->map(function ($collection) {
+                return [
+                    'loc' => route('ebook-collections.show', ['slug' => $collection->slug]),
+                    'lastmod' => $collection->updated_at ?? $collection->created_at,
+                    'changefreq' => 'weekly',
+                    'priority' => 0.6,
+                ];
+            });
     }
 
     private function whereToStudyUrls(): Collection

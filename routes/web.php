@@ -64,6 +64,7 @@ use Illuminate\Support\Facades\Response;
 // })->name('register')->middleware('auth');
 
 Route::get('/sitemap.xml', SitemapController::class)->name('sitemap');
+Route::get('/ebooks-sitemap.xml', [SitemapController::class, 'ebooks'])->name('ebooks.sitemap');
 
 Route::get('/robots.txt', function () {
     $content = implode("\n", [
@@ -71,6 +72,7 @@ Route::get('/robots.txt', function () {
         'Allow: /',
         '',
         'Sitemap: ' . route('sitemap'),
+        'Sitemap: ' . route('ebooks.sitemap'),
     ]);
 
     return Response::make($content, 200)
