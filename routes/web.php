@@ -42,6 +42,7 @@ use App\Http\Controllers\frontend\EbookAccessPlanController as FrontendEbookAcce
 use App\Http\Controllers\frontend\EbookCollectionController as FrontendEbookCollectionController;
 use App\Http\Controllers\frontend\EbookController as FrontendEbookController;
 use App\Http\Controllers\frontend\PageController as FrontendPageController;
+use App\Models\EbookCategory;
 use App\Models\PremiumCourseCategory;
 use App\Models\PremiumCourseChildCategory;
 use App\Models\PremiumCourseSubcategory;
@@ -130,7 +131,10 @@ Route::get('course/{slug}', [HomeController::class, 'premium_course_details'])
     ->name('course.show');
 Route::permanentRedirect('public/ebooks', 'ebooks');
 Route::get('ebooks', [FrontendEbookController::class, 'index'])->name('ebooks.index');
-Route::get('ebooks/category/{category:slug}', [FrontendEbookController::class, 'category'])->name('ebooks.category.show');
+Route::get('ebooks/category/{category:slug}', function (EbookCategory $category) {
+    return redirect()->route('ebooks.category.show', ['category' => $category], 301);
+})->name('ebooks.category.legacy');
+Route::get('ebooks/{category:slug}', [FrontendEbookController::class, 'category'])->name('ebooks.category.show');
 Route::get('ebook-plans', [FrontendEbookAccessPlanController::class, 'index'])->name('ebook-plans.index');
 Route::get('ebook-plans/{slug}', [FrontendEbookAccessPlanController::class, 'show'])->name('ebook-plans.show');
 Route::get('ebook-collections', [FrontendEbookCollectionController::class, 'index'])->name('ebook-collections.index');
