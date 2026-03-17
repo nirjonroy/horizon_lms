@@ -126,6 +126,7 @@ Route::permanentRedirect('Horizons-global-courses', 'courses');
 Route::permanentRedirect('Horizons-global-free-courses', 'free-courses');
 Route::get('course/{slug}', [HomeController::class, 'premium_course_details'])
     ->name('course.show');
+Route::permanentRedirect('public/ebooks', 'ebooks');
 Route::get('ebooks', [FrontendEbookController::class, 'index'])->name('ebooks.index');
 Route::get('ebooks/category/{category:slug}', [FrontendEbookController::class, 'category'])->name('ebooks.category.show');
 Route::get('ebook-plans', [FrontendEbookAccessPlanController::class, 'index'])->name('ebook-plans.index');

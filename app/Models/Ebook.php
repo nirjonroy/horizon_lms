@@ -14,6 +14,7 @@ class Ebook extends Model
 
     public const IMAGE_FIELD_COVER = 'cover';
     public const IMAGE_FIELD_META = 'meta';
+    private const REMOTE_IMAGE_CACHE_DIRECTORY = 'media/ebook-remote-cache';
 
     protected $fillable = [
         'category_id',
@@ -136,7 +137,7 @@ class Ebook extends Model
             $extension = 'jpg';
         }
 
-        return 'ebooks/remote-cache/' . sha1($this->getKey() . '|' . $field . '|' . $sourceUrl) . '.' . $extension;
+        return self::REMOTE_IMAGE_CACHE_DIRECTORY . '/' . sha1($this->getKey() . '|' . $field . '|' . $sourceUrl) . '.' . $extension;
     }
 
     public function shouldProxyRemoteUrl(string $url): bool

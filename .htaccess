@@ -2,6 +2,12 @@
 Options -Indexes +SymLinksIfOwnerMatch
 RewriteEngine On
 
+# Normalize accidentally exposed /public/ebooks URLs.
+RewriteRule ^public/ebooks/?$ ebooks [R=301,L]
+
+# Always let Laravel handle /ebooks routes, even if a real cache directory exists under /public.
+RewriteRule ^ebooks(?:/.*)?$ public/index.php [L]
+
 # If the requested path is a real file or directory under /public, serve it
 RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
 RewriteCond %{DOCUMENT_ROOT}/public/$1 -d

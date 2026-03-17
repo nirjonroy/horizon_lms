@@ -19,6 +19,7 @@ public/uploads/**
 public/premium-courses/**
 public/website-images/**
 public/ebooks/remote-cache/**
+public/media/ebook-remote-cache/**
 
 # laravel runtime
 storage/**
