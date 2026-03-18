@@ -50,6 +50,9 @@
 @endsection
 
 @section('content')
+@php
+    $timeSlots = $timeSlots ?? [];
+@endphp
 <section class="py-5" style="background:#001d42;">
     <div class="container">
         <div class="text-center text-white">

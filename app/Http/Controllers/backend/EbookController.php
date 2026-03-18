@@ -7,6 +7,7 @@ use App\Models\Ebook;
 use App\Models\EbookCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -86,7 +87,7 @@ class EbookController extends Controller
 
     private function validateEbook(Request $request, ?Ebook $ebook = null): array
     {
-        return $request->validate([
+        $rules = [
             'category_id' => ['nullable', 'exists:ebook_categories,id'],
             'title' => ['required', 'string', 'max:255'],
             'slug' => [
@@ -111,15 +112,22 @@ class EbookController extends Controller
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string'],
             'meta_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
-            'seo_author' => ['nullable', 'string', 'max:255'],
-            'publisher' => ['nullable', 'string', 'max:255'],
-            'copyright' => ['nullable', 'string', 'max:255'],
-            'site_name' => ['nullable', 'string', 'max:255'],
-            'keywords' => ['nullable', 'string'],
-            'robots' => ['nullable', 'string', 'max:255'],
             'published_at' => ['nullable', 'date'],
             'status' => ['required', 'boolean'],
-        ]);
+        ];
+
+        if ($this->supportsExtendedSeoFields()) {
+            $rules = array_merge($rules, [
+                'seo_author' => ['nullable', 'string', 'max:255'],
+                'publisher' => ['nullable', 'string', 'max:255'],
+                'copyright' => ['nullable', 'string', 'max:255'],
+                'site_name' => ['nullable', 'string', 'max:255'],
+                'keywords' => ['nullable', 'string'],
+                'robots' => ['nullable', 'string', 'max:255'],
+            ]);
+        }
+
+        return $request->validate($rules);
     }
 
     private function fillEbook(Ebook $ebook, array $data, Request $request): void
@@ -140,12 +148,16 @@ class EbookController extends Controller
         $ebook->description = $data['description'] ?? null;
         $ebook->meta_title = $data['meta_title'] ?? $data['title'];
         $ebook->meta_description = $data['meta_description'] ?? Str::limit(strip_tags($data['excerpt'] ?? $data['description'] ?? ''), 155, '');
-        $ebook->seo_author = $data['seo_author'] ?? null;
-        $ebook->publisher = $data['publisher'] ?? null;
-        $ebook->copyright = $data['copyright'] ?? null;
-        $ebook->site_name = $data['site_name'] ?? null;
-        $ebook->keywords = $this->normaliseKeywords($data['keywords'] ?? null);
-        $ebook->robots = trim((string) ($data['robots'] ?? '')) ?: 'index, follow';
+
+        if ($this->supportsExtendedSeoFields()) {
+            $ebook->seo_author = $data['seo_author'] ?? null;
+            $ebook->publisher = $data['publisher'] ?? null;
+            $ebook->copyright = $data['copyright'] ?? null;
+            $ebook->site_name = $data['site_name'] ?? null;
+            $ebook->keywords = $this->normaliseKeywords($data['keywords'] ?? null);
+            $ebook->robots = trim((string) ($data['robots'] ?? '')) ?: 'index, follow';
+        }
+
         $ebook->published_at = $data['published_at'] ?? null;
         $ebook->status = (bool) $data['status'];
 
@@ -234,5 +246,22 @@ class EbookController extends Controller
     private function flushMenuCache(): void
     {
         Cache::forget('ebook_menu_categories');
+    }
+
+    private function supportsExtendedSeoFields(): bool
+    {
+        static $supportsExtendedSeoFields;
+
+        if ($supportsExtendedSeoFields !== null) {
+            return $supportsExtendedSeoFields;
+        }
+
+        foreach (['seo_author', 'publisher', 'copyright', 'site_name', 'keywords', 'robots'] as $column) {
+            if (! Schema::hasColumn('ebooks', $column)) {
+                return $supportsExtendedSeoFields = false;
+            }
+        }
+
+        return $supportsExtendedSeoFields = true;
     }
 }

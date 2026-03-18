@@ -1730,12 +1730,9 @@ public function free_courses(){
 
 public function consultation_book()
 {
-
-    
-    
-
-        return view('frontend.book_consultancy');
-   
+        return view('frontend.book_consultancy', [
+            'timeSlots' => $this->consultationTimeSlots(),
+        ]);
 }
 
 
@@ -1743,11 +1740,16 @@ public function consultation_book()
 
     public function showStep1()
     {
-        $timeSlots = Cache::remember('consultation_time_slots', 3600, function () {
+        return view('frontend.book_consultancy', [
+            'timeSlots' => $this->consultationTimeSlots(),
+        ]);
+    }
+
+    private function consultationTimeSlots(): array
+    {
+        return Cache::remember('consultation_time_slots', 3600, function () {
             return $this->generateTimeSlots();
         });
-
-        return view('frontend.book_consultancy', compact('timeSlots'));
     }
     
  private function generateTimeSlots($timezone = null)
