@@ -11,7 +11,7 @@ class EbookAccessPlanController extends Controller
     public function index()
     {
         $plans = EbookAccessPlan::with('collection')
-            ->where('status', 1)
+            ->publicCatalog()
             ->orderByDesc('featured')
             ->orderBy('sort_order')
             ->orderBy('name')
@@ -40,7 +40,7 @@ class EbookAccessPlanController extends Controller
                 $query->where('status', 1)->with('category')->latest('published_at')->latest('id');
             },
         ])
-            ->where('status', 1)
+            ->publicCatalog()
             ->where('slug', $slug)
             ->firstOrFail();
 

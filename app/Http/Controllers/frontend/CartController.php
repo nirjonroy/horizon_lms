@@ -57,7 +57,7 @@ class CartController extends Controller
             return redirect()->route('login')->with('error', 'Login to add this access plan to your cart.');
         }
 
-        $plan = EbookAccessPlan::with('collection')->where('status', 1)->findOrFail($id);
+        $plan = EbookAccessPlan::with('collection')->publicCatalog()->findOrFail($id);
 
         if ($plan->userHasAccess(auth()->id())) {
             return redirect()->back()->with('success', 'Your account already has this access plan.');
@@ -145,7 +145,7 @@ class CartController extends Controller
             return redirect()->route('login')->with('error', 'Login to continue.');
         }
 
-        $plan = EbookAccessPlan::with('collection')->where('status', 1)->findOrFail($id);
+        $plan = EbookAccessPlan::with('collection')->publicCatalog()->findOrFail($id);
 
         if ($plan->userHasAccess(auth()->id())) {
             return redirect()->back()->with('success', 'Your account already has this access plan.');

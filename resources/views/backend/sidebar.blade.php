@@ -136,7 +136,7 @@
             <a href="#" class="nav-link">
               <i class="nav-icon fas fa-book-reader"></i>
               <p>
-                E-Book Catalog
+                BooksToGo Catalog
                 <i class="fas fa-angle-left right"></i>
               </p>
             </a>
@@ -144,7 +144,7 @@
               <li class="nav-item">
                 <a href="{{ route('admin.ebooks.index') }}" class="nav-link">
                   <i class="far fa-circle nav-icon"></i>
-                  <p>E-Books</p>
+                  <p>BooksToGo</p>
                 </a>
               </li>
               <li class="nav-item">

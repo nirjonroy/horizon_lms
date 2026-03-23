@@ -138,7 +138,7 @@
                     <div class="card card-item mt-4">
                         <div class="card-body">
                             <h3 class="widget-title mb-3">Need Library Access?</h3>
-                            <p class="text-muted mb-3">Unlock all books with a monthly, yearly, or lifetime plan, or buy a curated bundle collection.</p>
+                            <p class="text-muted mb-3">Unlock all books with an active access plan, or choose a curated bundle collection.</p>
                             <a href="{{ route('ebook-plans.index') }}" class="btn theme-btn w-100 mb-2">View Access Plans</a>
                             <a href="{{ route('ebook-collections.index') }}" class="btn btn-outline-secondary w-100">View Bundle Collections</a>
                         </div>
@@ -215,3 +215,4 @@
     </div>
 </section>
 @endsection
+

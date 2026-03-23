@@ -94,7 +94,7 @@
                                 <span class="section-divider section--divider"></span>
                                 <ul class="generic-list-item">
                                     <li><a href="{{ route('who_we_are') }}">About Us</a></li>
-                                    <li><a href="{{ route('consultation.step1') }}">Book Consultation</a></li>
+                                    <li><a href="{{ route('consultation.step1') }}">Free Consultation</a></li>
                                     <li><a href="{{ route('contact.us') }}">Contact Us</a></li>
                                     <li><a href="{{ route('all.blogs') }}">Blogs</a></li>
                                     <li><a href="{{ route('free-courses') }}">Free courses</a></li>

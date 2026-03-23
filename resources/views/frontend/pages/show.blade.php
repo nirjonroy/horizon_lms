@@ -102,7 +102,7 @@
                                     @endif
                                 </ul>
                                 <a href="{{ route('consultation.step1') }}" class="btn theme-btn w-100 mt-3">
-                                    <i class="la la-comments me-2"></i>Book a Consultation
+                                    <i class="la la-comments me-2"></i>Free Consultation
                                 </a>
                             </div>
                         </div>

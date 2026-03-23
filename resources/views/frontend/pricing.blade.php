@@ -48,8 +48,8 @@
     <div class="container">
         <div class="text-center mb-5">
             <p class="text-uppercase small text-muted mb-1">E-Book access</p>
-            <h2 class="fw-bold mb-2">Monthly, Yearly, Lifetime, and Bundle Plans</h2>
-            <p class="text-muted">Sell dynamic access offers for all books or for a specific collection.</p>
+            <h2 class="fw-bold mb-2">E-Book Access and Bundle Plans</h2>
+            <p class="text-muted">Browse the active access offers currently available for the Horizons book library.</p>
         </div>
         <div class="row g-4">
             @foreach($ebookFeaturedPlans as $plan)
@@ -67,7 +67,7 @@
                             </div>
                             <ul class="list-unstyled text-muted flex-grow-1">
                                 <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ $plan->scopeLabel() }}</li>
-                                <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ ucfirst($plan->billing_cycle) }} billing</li>
+                                <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ $plan->billingCycleLabel() }} billing</li>
                                 <li class="mb-2"><i class="la la-check text-success me-2"></i>{{ $plan->durationLabel() }}</li>
                             </ul>
                             <a href="{{ route('ebook-plans.show', $plan->slug) }}" class="btn theme-btn w-100 mt-3">
@@ -124,7 +124,7 @@
                 <p class="text-uppercase text-muted small mb-1">All e-book plans</p>
                 <h2 class="h5 fw-bold mb-0">Full E-Book Access Catalog</h2>
             </div>
-            <small class="text-muted">Use dynamic plans for all-books access or one curated collection.</small>
+            <small class="text-muted">Browse currently available access plans for the full library or a curated bundle collection.</small>
         </div>
         <div class="table-responsive shadow-sm bg-white rounded-4">
             <table class="table align-middle mb-0">
@@ -146,7 +146,7 @@
                                 <small class="text-muted">{{ \Illuminate\Support\Str::limit(strip_tags($plan->short_description ?: $plan->description), 60) }}</small>
                             </td>
                             <td>{{ $plan->scopeLabel() }}</td>
-                            <td>{{ ucfirst($plan->billing_cycle) }}</td>
+                            <td>{{ $plan->billingCycleLabel() }}</td>
                             <td>{{ $plan->durationLabel() }}</td>
                             <td>${{ number_format((float) ($plan->price ?? 0), 2) }}</td>
                             <td class="text-end">
@@ -185,7 +185,7 @@
                             <i class="la la-credit-card"></i>
                         </span>
                         <h3 class="h5">Flexible Payments</h3>
-                        <p class="text-muted mb-0">Monthly, yearly, lifetime, and weekly access options built around your goals.</p>
+                        <p class="text-muted mb-0">Transparent tuition guidance and active payment options tailored to your program goals.</p>
                     </div>
                 </div>
             </div>
@@ -209,7 +209,7 @@
         <div class="text-center mb-5">
             <p class="text-uppercase small text-muted mb-1">Recommended plans</p>
             <h2 class="fw-bold mb-2">Handpicked Pricing Options</h2>
-            <p class="text-muted">Compare the most popular premium course plans by access type.</p>
+            <p class="text-muted">Compare the most popular premium course options currently available.</p>
         </div>
         <div class="row g-4">
             @forelse($featuredPlans as $plan)
@@ -261,7 +261,7 @@
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
             <div>
                 <p class="text-uppercase text-muted small mb-1">Full catalog</p>
-                <h2 class="h5 fw-bold mb-0">Premium Course Plans by Access Type</h2>
+                <h2 class="h5 fw-bold mb-0">Premium Course Pricing Catalog</h2>
             </div>
             <small class="text-muted">Prices shown in USD. Installment options discussed during consultation.</small>
         </div>
@@ -360,7 +360,7 @@
                         <h2 class="h4 fw-bold mb-3">Talk to our advisors</h2>
                         <p class="text-muted mb-4">We'll build a tuition plan based on your target country, university, and budget.</p>
                         <div class="d-flex flex-column gap-3">
-                            <a href="{{ route('consultation.step1') }}" class="btn theme-btn">Book a Consultation</a>
+                            <a href="{{ route('consultation.step1') }}" class="btn theme-btn">Free Consultation</a>
                             <a href="{{ route('apply.now') }}" class="btn btn-outline-primary">Apply Now</a>
                         </div>
                     </div>

@@ -1187,21 +1187,20 @@ public function free_courses(){
     public function pricingPlans()
     {
           $siteInfo = siteInformation::first();
-          $planTypes = ['monthly', 'yearly', 'lifetime', 'weekly'];
+          $preferredCoursePlanTypes = ['yearly', 'weekly'];
+          $excludedCoursePlanTypes = ['monthly', 'lifetime', 'free', 'free_demo'];
 
-          $ebookFeaturedPlans = EbookAccessPlan::query()
+          $ebookPlanQuery = EbookAccessPlan::query()
               ->with('collection')
-              ->where('status', 1)
+              ->publicCatalog()
               ->orderByDesc('featured')
-              ->orderBy('sort_order')
+              ->orderBy('sort_order');
+
+          $ebookFeaturedPlans = (clone $ebookPlanQuery)
               ->take(3)
               ->get();
 
-          $ebookPlans = EbookAccessPlan::query()
-              ->with('collection')
-              ->where('status', 1)
-              ->orderByDesc('featured')
-              ->orderBy('sort_order')
+          $ebookPlans = (clone $ebookPlanQuery)
               ->paginate(9, ['*'], 'ebook_plan_page');
 
           $ebookCollections = EbookCollection::query()
@@ -1217,26 +1216,26 @@ public function free_courses(){
               ->take(6)
               ->get();
 
-          $featuredPlans = collect($planTypes)->map(function ($type) {
+          $coursePricingQuery = PremiumCourse::query()
+              ->where('status', 1)
+              ->whereNotIn('type', $excludedCoursePlanTypes);
+
+          $featuredPlans = collect($preferredCoursePlanTypes)->map(function ($type) {
               return PremiumCourse::query()
                   ->where('status', 1)
-                ->where('type', $type)
-                ->orderByDesc('updated_at')
-                ->first();
-        })->filter();
+                  ->where('type', $type)
+                  ->orderByDesc('updated_at')
+                  ->first();
+          })->filter()->values();
 
         if ($featuredPlans->isEmpty()) {
-            $featuredPlans = PremiumCourse::query()
-                ->whereIn('type', $planTypes)
-                ->where('status', 1)
+            $featuredPlans = (clone $coursePricingQuery)
                 ->orderByDesc('updated_at')
                 ->take(3)
                 ->get();
         }
 
-        $plans = PremiumCourse::query()
-            ->whereIn('type', $planTypes)
-            ->where('status', 1)
+        $plans = (clone $coursePricingQuery)
             ->orderByDesc('updated_at')
             ->paginate(12);
 
@@ -1249,7 +1248,7 @@ public function free_courses(){
             ],
             [
                 'question' => 'Can I pay in installments?',
-                'answer' => 'Yes. Most programs allow monthly or quarterly installment plans. Our advisors help you choose a schedule that fits your budget.',
+                'answer' => 'Payment schedules vary by program. Our advisors confirm the available tuition structure and any approved installment options before you apply.',
             ],
             [
                 'question' => 'Do you offer scholarships or discounts?',

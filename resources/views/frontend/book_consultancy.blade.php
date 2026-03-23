@@ -56,7 +56,7 @@
 <section class="py-5" style="background:#001d42;">
     <div class="container">
         <div class="text-center text-white">
-            <h1 class="display-5 fw-semibold" style="color:#ffffff">Book a Consultation</h1>
+            <h1 class="display-5 fw-semibold" style="color:#ffffff">Free Consultation</h1>
             <p class="lead mb-0">Secure a 20-minute call with our academic advisors and plan your next step.</p>
         </div>
     </div>

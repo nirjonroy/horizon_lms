@@ -43,7 +43,7 @@
                 <h1 class="display-5 fw-bold text-primary mb-3">{{ $studies->name }}</h1>
                 <div class="text-muted mb-4">{!! $studies->short_description !!}</div>
                 <div class="d-flex flex-wrap gap-3">
-                    <a href="{{ route('consultation.step1') }}" class="btn theme-btn">Book Consultation</a>
+                    <a href="{{ route('consultation.step1') }}" class="btn theme-btn">Free Consultation</a>
                     <a href="{{ route('apply.now') }}" class="btn btn-outline-primary">Apply Now</a>
                 </div>
             </div>
@@ -188,7 +188,7 @@
         <p class="text-white-50 mb-4">Take the next step in your academic and professional journey with our world-class programs.</p>
         <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
             <a href="{{ route('apply.now') }}" class="btn btn-light text-primary px-4">Apply Now</a>
-            <a href="{{ route('consultation.step1') }}" class="btn btn-outline-light px-4">Book Consultancy</a>
+            <a href="{{ route('consultation.step1') }}" class="btn btn-outline-light px-4">Free Consultation</a>
         </div>
     </div>
 </section>

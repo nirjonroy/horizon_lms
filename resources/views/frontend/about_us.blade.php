@@ -74,7 +74,7 @@
         ['title' => 'Student-Centricity', 'text' => 'Prioritizing the individual needs, goals, and success of our students and clients.'],
         ['title' => 'Career-Driven Skill Development', 'text' => 'Designing programs that enhance employability and career growth across diverse industries.'],
         ['title' => 'Accredited Global Partnerships', 'text' => 'Study with top universities in the UK and Europe while living in the Middle East—100% online.'],
-        ['title' => 'Flexible & Affordable Learning', 'text' => 'Self-paced programs, monthly payment plans, and a 30-day money-back guarantee.'],
+        ['title' => 'Flexible & Affordable Learning', 'text' => 'Self-paced programs, transparent tuition guidance, and practical study options designed around learner goals.'],
     ];
     $universities = DB::table('where_to_studies')->where('status', 1)->orderBy('name')->get();
 @endphp
@@ -160,8 +160,8 @@
                 <h2 class="fw-bold mb-3 text-primary">Premium Courses Designed for Your Life</h2>
                 <p class="text-muted mb-4">Advance your skills with exclusive content, personalized coaching, and a flexible learning experience designed around your goals.</p>
                 <ul class="list-unstyled text-muted">
-                    <li class="mb-2"><i class="la la-check-circle text-success me-2"></i>Monthly subscription plans</li>
-                    <li class="mb-2"><i class="la la-check-circle text-success me-2"></i>30-day money-back guarantee</li>
+                    <li class="mb-2"><i class="la la-check-circle text-success me-2"></i>Flexible study schedules</li>
+                    <li class="mb-2"><i class="la la-check-circle text-success me-2"></i>Transparent tuition guidance</li>
                     <li class="mb-2"><i class="la la-check-circle text-success me-2"></i>Exclusive content and resources</li>
                     <li class="mb-2"><i class="la la-check-circle text-success me-2"></i>Personalized learning paths</li>
                 </ul>
@@ -184,3 +184,4 @@
     </div>
 </section>
 @endsection
+

@@ -61,7 +61,7 @@
                         <p class="lead text-muted">{{ $plan->short_description ?: $plan->scopeLabel() }}</p>
                         <ul class="generic-list-item generic-list-item-flush mb-4">
                             <li><strong>Access scope:</strong> {{ $plan->scopeLabel() }}</li>
-                            <li><strong>Billing cycle:</strong> {{ ucfirst($plan->billing_cycle) }}</li>
+                            <li><strong>Billing cycle:</strong> {{ $plan->billingCycleLabel() }}</li>
                             <li><strong>Duration:</strong> {{ $plan->durationLabel() }}</li>
                         </ul>
                         @if($plan->description)
@@ -101,3 +101,5 @@
     </div>
 </section>
 @endsection
+
+

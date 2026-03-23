@@ -107,7 +107,7 @@ class EbookController extends Controller
             ->get();
 
         $relatedPlans = EbookAccessPlan::with('collection')
-            ->where('status', 1)
+            ->publicCatalog()
             ->where(function ($query) use ($collectionIds) {
                 $query->where('access_scope', EbookAccessPlan::SCOPE_ALL_EBOOKS)
                     ->orWhere(function ($inner) use ($collectionIds) {

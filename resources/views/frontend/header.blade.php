@@ -149,7 +149,7 @@
                         <a href="{{ route('cart.view') }}" class="icon-element icon-element-sm shadow-sm me-2 d-inline-flex d-lg-none" data-toggle="tooltip" data-placement="top" title="Cart">
                            <i class="la la-shopping-cart"></i>
                         </a>
-                        <a href="{{ route('consultation.step1') }}" class="icon-element icon-element-sm shadow-sm me-2 d-inline-flex d-lg-none" data-toggle="tooltip" data-placement="top" title="Book Consultancy">
+                        <a href="{{ route('consultation.step1') }}" class="icon-element icon-element-sm shadow-sm me-2 d-inline-flex d-lg-none" data-toggle="tooltip" data-placement="top" title="Free Consultation">
                            <i class="la la-user-plus"></i>
                         </a>
                         <div class="search-menu-toggle icon-element icon-element-sm shadow-sm me-2" data-toggle="tooltip" data-placement="top" title="Search">
@@ -253,12 +253,12 @@
                         <ul>
                            <li class="has-children">
                               <a href="{{ route('ebooks.index') }}">
-                                 E-Books
+                                 BooksToGo
                                  <i class="la la-angle-down fs-12"></i>
                               </a>
                               <ul class="dropdown-menu-item">
                                  <li>
-                                    <a href="{{ route('ebooks.index') }}">{{ __('All E-Books') }}</a>
+                                    <a href="{{ route('ebooks.index') }}">{{ __('All BooksToGo') }}</a>
                                  </li>
                                  <li>
                                     <a href="{{ route('ebook-plans.index') }}">{{ __('Access Plans') }}</a>
@@ -404,7 +404,7 @@
                      </div>
                      <!-- end shop-cart -->
                      <div class="nav-right-button">
-                        <a href="{{ route('consultation.step1') }}" class="btn theme-btn d-none d-lg-inline-block"><i class="la la-user-plus me-1"></i> Book Consultancy</a
+                        <a href="{{ route('consultation.step1') }}" class="btn theme-btn d-none d-lg-inline-block"><i class="la la-user-plus me-1"></i> Free Consultation</a
                            >
                      </div>
                      <!-- end nav-right-button -->
@@ -509,12 +509,12 @@
          </li>
          <li class="has-children">
             <a href="{{ route('ebooks.index') }}">
-               E-Books
+               BooksToGo
                <i class="la la-angle-down fs-12"></i>
             </a>
             <ul class="sub-menu">
                <li>
-                  <a href="{{ route('ebooks.index') }}">{{ __('All E-Books') }}</a>
+                  <a href="{{ route('ebooks.index') }}">{{ __('All BooksToGo') }}</a>
                </li>
                <li>
                   <a href="{{ route('ebook-plans.index') }}">{{ __('Access Plans') }}</a>
@@ -561,7 +561,7 @@
             <a href="{{ route('course.categories') }}">{{ __('Course Categories') }}</a>
          </li>
          <li>
-            <a href="{{ route('consultation.step1') }}">{{ __('Book Consultation') }}</a>
+            <a href="{{ route('consultation.step1') }}">{{ __('Free Consultation') }}</a>
          </li>
          <li>
             <a href="{{ route('all.blogs') }}">{{ __('Blogs') }}</a>

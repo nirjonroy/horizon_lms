@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class EbookAccessPlan extends Model
@@ -12,6 +13,7 @@ class EbookAccessPlan extends Model
 
     public const SCOPE_ALL_EBOOKS = 'all_ebooks';
     public const SCOPE_COLLECTION = 'collection';
+    public const HIDDEN_PUBLIC_BILLING_CYCLES = ['monthly', 'month', 'lifetime'];
 
     protected $fillable = [
         'name',
@@ -55,12 +57,24 @@ class EbookAccessPlan extends Model
         return $this->status && $this->price !== null;
     }
 
+    public function billingCycleLabel(): string
+    {
+        return match ($this->billing_cycle) {
+            'week', 'weekly' => 'Weekly',
+            'year', 'yearly' => 'Yearly',
+            'month', 'monthly' => 'Monthly',
+            'lifetime' => 'Lifetime',
+            null, '' => 'Flexible',
+            default => ucfirst(str_replace(['_', '-'], ' ', (string) $this->billing_cycle)),
+        };
+    }
+
     public function durationLabel(): string
     {
         if ($this->duration_days === null) {
             return match ($this->billing_cycle) {
                 'lifetime' => 'Lifetime access',
-                default => ucfirst($this->billing_cycle) . ' access',
+                default => $this->billingCycleLabel() . ' access',
             };
         }
 
@@ -73,6 +87,22 @@ class EbookAccessPlan extends Model
         }
 
         return $this->duration_days . ' day access';
+    }
+
+    public function scopePublicCatalog(Builder $query): Builder
+    {
+        return $query
+            ->where('status', 1)
+            ->where(function (Builder $inner) {
+                $inner->whereNull('billing_cycle')
+                    ->orWhereNotIn('billing_cycle', self::HIDDEN_PUBLIC_BILLING_CYCLES);
+            });
+    }
+
+    public function isPubliclyAvailable(): bool
+    {
+        return (bool) $this->status
+            && ! in_array((string) $this->billing_cycle, self::HIDDEN_PUBLIC_BILLING_CYCLES, true);
     }
 
     public function scopeLabel(): string

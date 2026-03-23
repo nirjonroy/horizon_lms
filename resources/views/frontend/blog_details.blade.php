@@ -134,7 +134,7 @@
                     <div class="card-body p-4 text-center">
                         <h5 class="fw-bold mb-3">Need help choosing a program?</h5>
                         <p class="text-muted mb-3">Book a free consultation with our advisors to explore the best degree or pathway for you.</p>
-                        <a href="{{ route('consultation.step1') }}" class="btn theme-btn w-100">Book Consultation</a>
+                        <a href="{{ route('consultation.step1') }}" class="btn theme-btn w-100">Free Consultation</a>
                     </div>
                 </div>
             </div>

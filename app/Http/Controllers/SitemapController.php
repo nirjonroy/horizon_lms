@@ -236,7 +236,7 @@ class SitemapController extends Controller
     private function ebookAccessPlanUrls(): Collection
     {
         return EbookAccessPlan::query()
-            ->where('status', 1)
+            ->publicCatalog()
             ->get()
             ->filter(fn ($plan) => filled($plan->slug ?? null))
             ->map(function ($plan) {

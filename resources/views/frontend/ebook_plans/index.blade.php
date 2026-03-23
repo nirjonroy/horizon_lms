@@ -9,7 +9,7 @@
         <div class="breadcrumb-content d-flex flex-wrap align-items-center justify-content-between">
             <div class="section-heading mb-3 mb-lg-0">
                 <h1 class="section__title text-white">E-Book Access Plans</h1>
-                <p class="section__desc text-white-50 mb-0">Choose monthly, yearly, lifetime, or bundle-based access to the Horizons e-book library.</p>
+                <p class="section__desc text-white-50 mb-0">Browse the active access options and bundle-based offers in the Horizons book library.</p>
             </div>
             <ul class="generic-list-item generic-list-item-white generic-list-item-arrow d-flex flex-wrap align-items-center">
                 <li><a href="{{ route('home.index') }}">Home</a></li>
@@ -36,7 +36,7 @@
                             <p class="text-muted mb-3">{{ $plan->short_description ?: $plan->scopeLabel() }}</p>
                             <ul class="generic-list-item generic-list-item-flush text-muted mb-4">
                                 <li><strong>Access:</strong> {{ $plan->scopeLabel() }}</li>
-                                <li><strong>Billing:</strong> {{ ucfirst($plan->billing_cycle) }}</li>
+                                <li><strong>Billing:</strong> {{ $plan->billingCycleLabel() }}</li>
                                 <li><strong>Duration:</strong> {{ $plan->durationLabel() }}</li>
                             </ul>
                             <div class="mt-auto">
@@ -94,3 +94,5 @@
     </section>
 @endif
 @endsection
+
+
