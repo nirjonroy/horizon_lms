@@ -20,10 +20,7 @@ class EbookAccessPlanController extends Controller
         $featuredCollections = EbookCollection::withCount(['ebooks' => function ($query) {
             $query->where('status', 1);
         }])
-            ->where('status', 1)
-            ->whereHas('ebooks', function ($query) {
-                $query->where('status', 1);
-            })
+            ->publicCatalog()
             ->orderByDesc('featured')
             ->orderBy('sort_order')
             ->take(4)

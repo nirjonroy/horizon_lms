@@ -26,7 +26,7 @@
             <div class="col-lg-4 mb-4">
                 <div class="card card-item">
                     <div class="card-body text-center">
-                        <img src="{{ $plan->imageUrl() }}" alt="{{ $plan->name }}" class="img-fluid rounded mb-4" style="max-height: 260px; object-fit: cover;">
+                        <img src="{{ $plan->imageUrl() }}" alt="{{ $plan->name }}" class="img-fluid rounded mb-4" style="max-height: 260px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                         <span class="badge badge-info mb-3">{{ $plan->durationLabel() }}</span>
                         <h2 class="fs-30 mb-2">${{ number_format((float) ($plan->price ?? 0), 2) }}</h2>
                         @if($plan->old_price && (float) $plan->old_price > (float) $plan->price)
@@ -70,7 +70,7 @@
                     </div>
                 </div>
 
-                @if($plan->collection && $plan->collection->ebooks->isNotEmpty())
+                @if($plan->collection)
                     <div class="card card-item">
                         <div class="card-body">
                             <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
@@ -80,19 +80,23 @@
                                 </div>
                                 <a href="{{ route('ebook-collections.show', $plan->collection->slug) }}" class="btn btn-outline-secondary btn-sm">Open Bundle</a>
                             </div>
-                            <div class="row">
-                                @foreach($plan->collection->ebooks->take(6) as $ebook)
-                                    <div class="col-md-6 mb-4">
-                                        <div class="card h-100 border">
-                                            <img src="{{ $ebook->coverImageUrl() }}" alt="{{ $ebook->title }}" class="card-img-top" style="height: 220px; object-fit: cover;">
-                                            <div class="card-body">
-                                                <h4 class="fs-18"><a href="{{ route('ebooks.show', $ebook->slug) }}">{{ $ebook->title }}</a></h4>
-                                                <p class="text-muted mb-0">{{ $ebook->author ?? 'Unknown author' }}</p>
+                            @if($plan->collection->ebooks->isNotEmpty())
+                                <div class="row">
+                                    @foreach($plan->collection->ebooks->take(6) as $ebook)
+                                        <div class="col-md-6 mb-4">
+                                            <div class="card h-100 border">
+                                                <img src="{{ $ebook->coverImageUrl() }}" alt="{{ $ebook->title }}" class="card-img-top" style="height: 220px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
+                                                <div class="card-body">
+                                                    <h4 class="fs-18"><a href="{{ route('ebooks.show', $ebook->slug) }}">{{ $ebook->title }}</a></h4>
+                                                    <p class="text-muted mb-0">{{ $ebook->author ?? 'Unknown author' }}</p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                @endforeach
-                            </div>
+                                    @endforeach
+                                </div>
+                            @else
+                                <p class="text-muted mb-0">This plan unlocks a direct-download bundle package.</p>
+                            @endif
                         </div>
                     </div>
                 @endif

@@ -49,7 +49,7 @@ class EbookAccessPlan extends Model
 
     public function imageUrl(): string
     {
-        return $this->image ? asset($this->image) : asset('frontend/assets/images/img-loading.png');
+        return $this->image ? asset($this->image) : asset('frontend/assets/images/books-to-go-placeholder.svg');
     }
 
     public function canBePurchased(): bool

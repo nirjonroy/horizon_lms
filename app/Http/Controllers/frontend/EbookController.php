@@ -99,7 +99,7 @@ class EbookController extends Controller
         $relatedCollections = EbookCollection::withCount(['ebooks' => function ($query) {
             $query->where('status', 1);
         }])
-            ->where('status', 1)
+            ->publicCatalog()
             ->whereIn('id', $collectionIds)
             ->orderByDesc('featured')
             ->orderBy('sort_order')
@@ -180,7 +180,7 @@ class EbookController extends Controller
         $relativePath = $ebook->cachedRemoteImageRelativePath($field);
 
         if (! $sourceUrl || ! $relativePath) {
-            return redirect(asset('frontend/assets/images/img-loading.png'));
+            return redirect(asset('frontend/assets/images/books-to-go-placeholder.svg'));
         }
 
         $fullPath = public_path($relativePath);
@@ -215,7 +215,7 @@ class EbookController extends Controller
         }
 
         if (! is_file($fullPath)) {
-            return redirect(asset('frontend/assets/images/img-loading.png'));
+            return redirect(asset('frontend/assets/images/books-to-go-placeholder.svg'));
         }
 
         return response()->file($fullPath, [

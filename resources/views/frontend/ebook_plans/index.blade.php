@@ -78,12 +78,14 @@
                 @foreach($featuredCollections as $collection)
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card card-item h-100">
-                            <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                            <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="card-img-top" style="height: 220px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                             <div class="card-body d-flex flex-column">
                                 <h3 class="card-title fs-20">
                                     <a href="{{ route('ebook-collections.show', $collection->slug) }}">{{ $collection->name }}</a>
                                 </h3>
-                                <p class="text-muted">{{ $collection->ebooks_count }} books included</p>
+                                <p class="text-muted">
+                                    {{ $collection->ebooks_count > 0 ? $collection->ebooks_count . ' books included' : 'Direct bundle download' }}
+                                </p>
                                 <a href="{{ route('ebook-collections.show', $collection->slug) }}" class="btn btn-sm theme-btn mt-auto">View Bundle</a>
                             </div>
                         </div>

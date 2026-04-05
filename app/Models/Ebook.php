@@ -73,7 +73,7 @@ class Ebook extends Model
     public function coverImageUrl(): string
     {
         return $this->resolveImageUrl($this->cover_image, self::IMAGE_FIELD_COVER)
-            ?? asset('frontend/assets/images/img-loading.png');
+            ?? asset('frontend/assets/images/books-to-go-placeholder.svg');
     }
 
     public function metaImageUrl(): string

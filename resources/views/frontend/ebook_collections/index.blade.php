@@ -25,13 +25,15 @@
             @forelse($collections as $collection)
                 <div class="col-lg-4 col-md-6 mb-4">
                     <div class="card card-item h-100">
-                        <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="card-img-top" style="height: 260px; object-fit: cover;">
+                        <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="card-img-top" style="height: 260px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                         <div class="card-body d-flex flex-column">
-                            <span class="badge badge-light mb-2 align-self-start">{{ $collection->ebooks_count }} books</span>
+                            <span class="badge badge-light mb-2 align-self-start">
+                                {{ $collection->ebooks_count > 0 ? $collection->ebooks_count . ' books' : 'Direct bundle download' }}
+                            </span>
                             <h3 class="card-title fs-22">
                                 <a href="{{ route('ebook-collections.show', $collection->slug) }}">{{ $collection->name }}</a>
                             </h3>
-                            <p class="text-muted flex-grow-1">{{ \Illuminate\Support\Str::limit(strip_tags($collection->excerpt ?: $collection->description ?: ''), 110) }}</p>
+                            <p class="text-muted flex-grow-1">{{ \Illuminate\Support\Str::limit($collection->summaryText(), 110) }}</p>
                             <div class="d-flex align-items-center justify-content-between mt-3">
                                 <strong>${{ number_format((float) ($collection->price ?? 0), 2) }}</strong>
                                 <a href="{{ route('ebook-collections.show', $collection->slug) }}" class="btn btn-sm theme-btn">View Bundle</a>

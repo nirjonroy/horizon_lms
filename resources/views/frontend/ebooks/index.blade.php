@@ -170,7 +170,7 @@
                             <div class="card card-item h-100">
                                 <div class="card-image">
                                     <a href="{{ route('ebooks.show', $ebook->slug) }}">
-                                        <img src="{{ $cover }}" class="card-img-top" alt="{{ $ebook->title }}" style="height: 260px; object-fit: cover;">
+                                        <img src="{{ $cover }}" class="card-img-top" alt="{{ $ebook->title }}" style="height: 260px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                                     </a>
                                 </div>
                                 <div class="card-body d-flex flex-column">

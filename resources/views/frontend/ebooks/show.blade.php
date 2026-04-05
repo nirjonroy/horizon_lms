@@ -86,7 +86,7 @@
             <div class="col-lg-4 mb-4">
                 <div class="card card-item">
                     <div class="card-body text-center">
-                        <img src="{{ $cover }}" alt="{{ $ebook->title }}" class="img-fluid rounded mb-4" style="max-height: 420px; object-fit: cover;">
+                        <img src="{{ $cover }}" alt="{{ $ebook->title }}" class="img-fluid rounded mb-4" style="max-height: 420px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                         @if($ebook->price !== null)
                             <div class="mb-4">
                                 <div class="fs-3 font-weight-bold text-dark">
@@ -243,7 +243,7 @@
                                     @endphp
                                     <div class="col-md-6 mb-4">
                                         <div class="card h-100 border">
-                                            <img src="{{ $relatedCover }}" alt="{{ $related->title }}" class="card-img-top" style="height: 220px; object-fit: cover;">
+                                            <img src="{{ $relatedCover }}" alt="{{ $related->title }}" class="card-img-top" style="height: 220px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                                             <div class="card-body">
                                                 <span class="badge badge-light mb-2">{{ optional($related->category)->name ?? 'E-Book' }}</span>
                                                 <h4 class="fs-18">

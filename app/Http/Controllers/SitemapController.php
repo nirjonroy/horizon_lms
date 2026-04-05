@@ -252,10 +252,7 @@ class SitemapController extends Controller
     private function ebookCollectionUrls(): Collection
     {
         return EbookCollection::query()
-            ->where('status', 1)
-            ->whereHas('ebooks', function ($query) {
-                $query->where('status', 1);
-            })
+            ->publicCatalog()
             ->get()
             ->filter(fn ($collection) => filled($collection->slug ?? null))
             ->map(function ($collection) {

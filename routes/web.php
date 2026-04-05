@@ -129,15 +129,21 @@ Route::permanentRedirect('Horizons-global-courses', 'courses');
 Route::permanentRedirect('Horizons-global-free-courses', 'free-courses');
 Route::get('course/{slug}', [HomeController::class, 'premium_course_details'])
     ->name('course.show');
-Route::permanentRedirect('public/ebooks', 'ebooks');
-Route::get('ebooks', [FrontendEbookController::class, 'index'])->name('ebooks.index');
+Route::permanentRedirect('public/ebooks', 'books-to-go');
+Route::get('books-to-go', [FrontendEbookController::class, 'index'])->name('ebooks.index');
 Route::get('ebooks/category/{category:slug}', function (EbookCategory $category) {
     return redirect()->route('ebooks.category.show', ['category' => $category], 301);
 })->name('ebooks.category.legacy');
-Route::get('ebooks/{category:slug}', [FrontendEbookController::class, 'category'])->name('ebooks.category.show');
+Route::get('ebooks/{category:slug}', function (EbookCategory $category) {
+    return redirect()->route('ebooks.category.show', ['category' => $category], 301);
+});
+Route::get('books-to-go/{category:slug}', [FrontendEbookController::class, 'category'])->name('ebooks.category.show');
 Route::get('ebook-plans', [FrontendEbookAccessPlanController::class, 'index'])->name('ebook-plans.index');
 Route::get('ebook-plans/{slug}', [FrontendEbookAccessPlanController::class, 'show'])->name('ebook-plans.show');
 Route::get('ebook-collections', [FrontendEbookCollectionController::class, 'index'])->name('ebook-collections.index');
+Route::get('ebook-collections/{slug}/download', [FrontendEbookCollectionController::class, 'download'])
+    ->middleware('auth')
+    ->name('ebook-collections.download');
 Route::get('ebook-collections/{slug}', [FrontendEbookCollectionController::class, 'show'])->name('ebook-collections.show');
 Route::get('ebook-asset/{ebook}/{field}', [FrontendEbookController::class, 'asset'])
     ->whereNumber('ebook')
@@ -355,6 +361,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::get('/ebook-collections', [AdminEbookCollectionController::class, 'index'])->name('ebook-collections.index');
     Route::post('/ebook-collections', [AdminEbookCollectionController::class, 'store'])->name('ebook-collections.store');
+    Route::post('/ebook-collections/import-folder', [AdminEbookCollectionController::class, 'import'])->name('ebook-collections.import');
     Route::get('/ebook-collections/{ebookCollection}/edit', [AdminEbookCollectionController::class, 'edit'])->name('ebook-collections.edit');
     Route::put('/ebook-collections/{ebookCollection}', [AdminEbookCollectionController::class, 'update'])->name('ebook-collections.update');
     Route::delete('/ebook-collections/{ebookCollection}', [AdminEbookCollectionController::class, 'destroy'])->name('ebook-collections.destroy');

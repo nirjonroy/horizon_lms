@@ -69,6 +69,31 @@
         </div>
         <div class="col-md-4">
             <div class="form-group">
+                <label>Bundle File</label>
+                <input type="file" name="bundle_file" class="form-control-file" accept=".zip,.rar,.7z,.pdf,.epub">
+                @error('bundle_file')
+                    <span class="text-danger small">{{ $message }}</span>
+                @enderror
+                @if(!empty($collection?->bundle_file))
+                    <small class="text-muted d-block mt-2">Current file: {{ basename($collection->bundle_file) }}</small>
+                @endif
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="form-group">
+                <label>Remote Download URL</label>
+                <input type="text" name="download_url" class="form-control" value="{{ old('download_url', $collection->download_url ?? '') }}" placeholder="Optional remote file link">
+                @error('download_url')
+                    <span class="text-danger small">{{ $message }}</span>
+                @enderror
+                <small class="text-muted d-block mt-2">Use this if the bundle file stays on Drive or another file host.</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="form-group">
                 <label>Featured</label>
                 <select name="featured" class="form-control">
                     <option value="1" {{ old('featured', (int) ($collection->featured ?? 0)) === 1 ? 'selected' : '' }}>Yes</option>
@@ -108,7 +133,7 @@
                 </option>
             @endforeach
         </select>
-        <small class="text-muted">Hold Ctrl or Cmd to select multiple books.</small>
+        <small class="text-muted">Hold Ctrl or Cmd to select multiple books. You can leave this empty if the collection is a direct ZIP or file download.</small>
         @error('ebook_ids')
             <span class="text-danger small d-block">{{ $message }}</span>
         @enderror

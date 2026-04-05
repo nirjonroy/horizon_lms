@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Ebook;
 use App\Models\EbookCollection;
 use App\Models\UserEbookAccess;
+use App\Services\BundleCollectionImporter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -24,7 +25,47 @@ class EbookCollectionController extends Controller
             ->orderBy('title')
             ->get(['id', 'title']);
 
-        return view('backend.ebook_collections.index', compact('collections', 'ebooks'));
+        $importSuggestedPath = 'storage/app/imports/bundle-collections';
+
+        return view('backend.ebook_collections.index', compact('collections', 'ebooks', 'importSuggestedPath'));
+    }
+
+    public function import(Request $request, BundleCollectionImporter $importer)
+    {
+        $data = $request->validate([
+            'source_path' => ['required', 'string', 'max:1000'],
+            'price' => ['nullable', 'numeric'],
+            'old_price' => ['nullable', 'numeric'],
+            'access_days' => ['nullable', 'integer', 'min:1'],
+            'featured' => ['required', 'boolean'],
+            'status' => ['required', 'boolean'],
+            'sort_order_start' => ['nullable', 'integer', 'min:0'],
+        ]);
+
+        set_time_limit(0);
+
+        try {
+            $result = $importer->importFromSource((string) $data['source_path'], $data);
+        } catch (\Throwable $e) {
+            return redirect()
+                ->route('admin.ebook-collections.index')
+                ->with('error', 'Bundle import failed: ' . $e->getMessage());
+        }
+
+        $message = sprintf(
+            'Bundle import complete. Created %d, updated %d, skipped %d.',
+            $result['created'] ?? 0,
+            $result['updated'] ?? 0,
+            $result['skipped'] ?? 0
+        );
+
+        if (! empty($result['errors'])) {
+            $message .= ' Issues: ' . implode(' ', array_slice($result['errors'], 0, 5));
+        }
+
+        return redirect()
+            ->route('admin.ebook-collections.index')
+            ->with('success', $message);
     }
 
     public function store(Request $request)
@@ -79,6 +120,7 @@ class EbookCollectionController extends Controller
         }
 
         $this->deleteFileIfExists($ebookCollection->cover_image);
+        $this->deleteFileIfExists($ebookCollection->bundle_file);
         $ebookCollection->ebooks()->detach();
         $ebookCollection->delete();
 
@@ -100,6 +142,8 @@ class EbookCollectionController extends Controller
             'excerpt' => ['nullable', 'string'],
             'description' => ['nullable', 'string'],
             'cover_image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+            'bundle_file' => ['nullable', 'file', 'mimes:zip,rar,7z,pdf,epub', 'max:1024000'],
+            'download_url' => ['nullable', 'string', 'max:2048'],
             'price' => ['nullable', 'numeric'],
             'old_price' => ['nullable', 'numeric'],
             'access_days' => ['nullable', 'integer', 'min:1'],
@@ -117,6 +161,7 @@ class EbookCollectionController extends Controller
         $collection->slug = $this->generateUniqueSlug($data['slug'] ?: $data['name'], $collection->id);
         $collection->excerpt = $data['excerpt'] ?? null;
         $collection->description = $data['description'] ?? null;
+        $collection->download_url = trim((string) ($data['download_url'] ?? '')) ?: null;
         $collection->price = $data['price'] ?? null;
         $collection->old_price = $data['old_price'] ?? null;
         $collection->access_days = $data['access_days'] ?? null;
@@ -127,6 +172,11 @@ class EbookCollectionController extends Controller
         if ($request->hasFile('cover_image')) {
             $this->deleteFileIfExists($collection->cover_image);
             $collection->cover_image = $this->uploadFile($request->file('cover_image'), 'ebooks/collections');
+        }
+
+        if ($request->hasFile('bundle_file')) {
+            $this->deleteFileIfExists($collection->bundle_file);
+            $collection->bundle_file = $this->uploadFile($request->file('bundle_file'), 'ebooks/collections/files');
         }
     }
 

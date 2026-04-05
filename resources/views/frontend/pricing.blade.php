@@ -96,14 +96,16 @@
             @foreach($ebookCollections as $collection)
                 <div class="col-md-4 col-lg-4">
                     <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
-                        <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="w-100" style="height: 220px; object-fit: cover;">
+                        <img src="{{ $collection->coverImageUrl() }}" alt="{{ $collection->name }}" class="w-100" style="height: 220px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                         <div class="card-body d-flex flex-column">
                             <h3 class="h5 fw-bold">{{ $collection->name }}</h3>
                             <p class="text-muted flex-grow-1">{{ \Illuminate\Support\Str::limit(strip_tags($collection->excerpt ?: $collection->description), 90) }}</p>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <strong>${{ number_format((float) ($collection->price ?? 0), 2) }}</strong>
-                                    <small class="text-muted d-block">{{ $collection->ebooks_count }} books</small>
+                                    <small class="text-muted d-block">
+                                        {{ $collection->ebooks_count > 0 ? $collection->ebooks_count . ' books' : 'Direct bundle download' }}
+                                    </small>
                                 </div>
                                 <a href="{{ route('ebook-collections.show', $collection->slug) }}" class="btn btn-sm theme-btn">View Bundle</a>
                             </div>

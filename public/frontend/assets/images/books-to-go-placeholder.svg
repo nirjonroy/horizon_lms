@@ -1,0 +1,64 @@
+<svg width="1200" height="800" viewBox="0 0 1200 800" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">BooksToGo placeholder cover</title>
+  <desc id="desc">Gradient bundle cover with stacked books illustration for missing ebook artwork.</desc>
+  <defs>
+    <linearGradient id="bg" x1="80" y1="60" x2="1120" y2="740" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0A2D5E"/>
+      <stop offset="0.55" stop-color="#114C88"/>
+      <stop offset="1" stop-color="#F25C54"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="220" y1="120" x2="980" y2="680" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="bookA" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFF2C2"/>
+      <stop offset="1" stop-color="#F6D365"/>
+    </linearGradient>
+    <linearGradient id="bookB" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#D8F7F1"/>
+      <stop offset="1" stop-color="#69D2C5"/>
+    </linearGradient>
+    <linearGradient id="bookC" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#FFD9D2"/>
+      <stop offset="1" stop-color="#FF8E7F"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="800" rx="48" fill="url(#bg)"/>
+  <circle cx="1020" cy="142" r="120" fill="#FFFFFF" fill-opacity="0.08"/>
+  <circle cx="170" cy="660" r="170" fill="#FFFFFF" fill-opacity="0.06"/>
+  <path d="M878 28L1128 278" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="28" stroke-linecap="round"/>
+  <path d="M814 92L1084 362" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="16" stroke-linecap="round"/>
+
+  <rect x="120" y="96" width="960" height="608" rx="36" fill="url(#panel)" stroke="#FFFFFF" stroke-opacity="0.18"/>
+
+  <g opacity="0.28">
+    <path d="M170 188H450" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M170 220H360" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+    <path d="M170 252H314" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(600 420)">
+    <rect x="-186" y="-58" width="372" height="92" rx="22" fill="url(#bookC)" transform="rotate(-12)"/>
+    <rect x="-170" y="-44" width="74" height="64" rx="14" fill="#0A2D5E" fill-opacity="0.14" transform="rotate(-12)"/>
+    <rect x="-156" y="-26" width="34" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.7" transform="rotate(-12)"/>
+    <rect x="-156" y="-8" width="46" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.55" transform="rotate(-12)"/>
+
+    <rect x="-206" y="-4" width="412" height="98" rx="22" fill="url(#bookB)"/>
+    <rect x="-182" y="16" width="86" height="58" rx="14" fill="#0A2D5E" fill-opacity="0.14"/>
+    <rect x="-164" y="32" width="40" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.7"/>
+    <rect x="-164" y="50" width="56" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.55"/>
+
+    <rect x="-176" y="76" width="352" height="90" rx="22" fill="url(#bookA)" transform="rotate(10)"/>
+    <rect x="-154" y="96" width="72" height="58" rx="14" fill="#0A2D5E" fill-opacity="0.14" transform="rotate(10)"/>
+    <rect x="-138" y="114" width="32" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.72" transform="rotate(10)"/>
+    <rect x="-138" y="132" width="44" height="8" rx="4" fill="#FFFFFF" fill-opacity="0.58" transform="rotate(10)"/>
+  </g>
+
+  <g fill="#FFFFFF">
+    <text x="170" y="514" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="0.18em">BOOKSTOGO</text>
+    <text x="170" y="574" font-family="Arial, Helvetica, sans-serif" font-size="72" font-weight="700">Bundle Collection</text>
+    <text x="170" y="630" font-family="Arial, Helvetica, sans-serif" font-size="28" font-weight="400" fill-opacity="0.82">Curated download pack with instant access after checkout</text>
+  </g>
+</svg>
