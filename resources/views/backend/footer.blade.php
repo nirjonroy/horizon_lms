@@ -87,9 +87,23 @@
           @if(session('success'))
               Swal.fire({
                   icon: 'success',
-                  title: '{{ session('success') }}',
+                  title: @json(session('success')),
                   showConfirmButton: false,
                   timer: 1500
+              });
+          @endif
+          @if(session('warning'))
+              Swal.fire({
+                  icon: 'warning',
+                  title: 'Warning',
+                  text: @json(session('warning'))
+              });
+          @endif
+          @if(session('error'))
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: @json(session('error'))
               });
           @endif
       }

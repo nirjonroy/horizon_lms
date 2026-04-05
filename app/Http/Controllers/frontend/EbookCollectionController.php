@@ -25,7 +25,7 @@ class EbookCollectionController extends Controller
     public function show(string $slug)
     {
         $collection = EbookCollection::with(['ebooks' => function ($query) {
-            $query->where('status', 1)->with('category')->latest('published_at')->latest('id');
+            $query->with('category')->orderByDesc('status')->latest('published_at')->latest('id');
         }, 'accessPlans' => function ($query) {
             $query->where('status', 1)->orderByDesc('featured')->orderBy('sort_order');
         }])

@@ -90,6 +90,19 @@ class EbookCollection extends Model
         return filled($this->bundle_file) || filled($this->download_url);
     }
 
+    public function isGoogleDriveFolderDelivery(): bool
+    {
+        if (! $this->download_url || ! filter_var($this->download_url, FILTER_VALIDATE_URL)) {
+            return false;
+        }
+
+        $host = Str::lower((string) parse_url($this->download_url, PHP_URL_HOST));
+        $path = (string) parse_url($this->download_url, PHP_URL_PATH);
+
+        return in_array($host, ['drive.google.com', 'docs.google.com'], true)
+            && preg_match('#/folders?/([a-zA-Z0-9_-]+)#', $path) === 1;
+    }
+
     public function canBePurchased(): bool
     {
         return $this->status && $this->price !== null;
@@ -107,6 +120,20 @@ class EbookCollection extends Model
         }
 
         return 'Lifetime bundle access';
+    }
+
+    public function deliverableActionLabel(): string
+    {
+        return $this->isGoogleDriveFolderDelivery() ? 'Open Bundle Folder' : 'Download Bundle';
+    }
+
+    public function deliverableDescription(): string
+    {
+        if ($this->isGoogleDriveFolderDelivery()) {
+            return 'This collection is delivered through a Google Drive folder so you can access the full bundle contents in one place.';
+        }
+
+        return 'This collection is delivered as a direct download package instead of separate book records.';
     }
 
     public function summaryText(): string

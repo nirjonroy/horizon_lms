@@ -47,7 +47,19 @@ class SitemapController extends Controller
                 ->merge($this->ebookStaticUrls())
                 ->merge($this->ebookCategoryUrls())
                 ->merge($this->ebookUrls())
-                ->merge($this->ebookAccessPlanUrls())
+                ->merge($this->ebookAccessPlanUrls());
+
+            return $this->buildXml($urls);
+        });
+
+        return response($xml, 200)->header('Content-Type', 'application/xml; charset=UTF-8');
+    }
+
+    public function ebookCollections(): Response
+    {
+        $xml = Cache::remember('ebook-collections.xml', now()->addHour(), function () {
+            $urls = collect()
+                ->merge($this->ebookCollectionIndexUrl())
                 ->merge($this->ebookCollectionUrls());
 
             return $this->buildXml($urls);
@@ -189,6 +201,14 @@ class SitemapController extends Controller
                 'changefreq' => 'weekly',
                 'priority' => 0.7,
             ],
+        ]);
+    }
+
+    private function ebookCollectionIndexUrl(): Collection
+    {
+        $now = now();
+
+        return collect([
             [
                 'loc' => route('ebook-collections.index'),
                 'lastmod' => $now,

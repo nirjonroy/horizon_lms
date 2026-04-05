@@ -25,6 +25,19 @@ class ImportBundleCollections extends Command
         $this->info('Importing bundles from: ' . $source);
 
         try {
+            $duplicateCheck = $importer->detectDuplicateSourceImport($source);
+            if ($duplicateCheck['is_duplicate'] ?? false) {
+                $message = 'This Google Drive URL appears to have been imported already.';
+
+                if (! empty($duplicateCheck['matching_names'])) {
+                    $message .= ' Matching bundles: ' . implode(', ', $duplicateCheck['matching_names']) . '.';
+                }
+
+                $this->warn($message);
+
+                return self::INVALID;
+            }
+
             $result = $importer->importFromSource($source, [
                 'price' => $this->option('price'),
                 'old_price' => $this->option('old-price'),
@@ -48,6 +61,14 @@ class ImportBundleCollections extends Command
 
         foreach (array_slice($result['errors'] ?? [], 0, 10) as $error) {
             $this->warn($error);
+        }
+
+        if (($duplicateCheck['has_overlap'] ?? false) && ! ($duplicateCheck['is_duplicate'] ?? false)) {
+            $this->warn(sprintf(
+                '%d existing bundle%s matched this source and may have been updated.',
+                (int) ($duplicateCheck['duplicate_count'] ?? 0),
+                ((int) ($duplicateCheck['duplicate_count'] ?? 0)) === 1 ? '' : 's'
+            ));
         }
 
         return self::SUCCESS;

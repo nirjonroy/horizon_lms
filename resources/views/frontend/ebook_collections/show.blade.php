@@ -37,7 +37,7 @@
                         <div class="d-grid gap-2">
                             @if($hasAccess)
                                 @if($collection->hasDeliverable())
-                                    <a href="{{ route('ebook-collections.download', $collection->slug) }}" class="btn theme-btn w-100">Download Bundle</a>
+                                    <a href="{{ route('ebook-collections.download', $collection->slug) }}" class="btn theme-btn w-100">{{ $collection->deliverableActionLabel() }}</a>
                                 @endif
                                 @if($collection->ebooks->isNotEmpty())
                                     <a href="{{ route('ebooks.index') }}" class="btn btn-outline-secondary w-100">Browse Included E-Books</a>
@@ -94,7 +94,7 @@
                         <div class="card-body">
                             <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
                                 <div>
-                                    <h3 class="widget-title mb-1">Included Books</h3>
+                                    <h3 class="widget-title mb-1">Books in This Bundle</h3>
                                     <p class="text-muted mb-0">{{ $collection->ebooks->count() }} books in this bundle</p>
                                 </div>
                             </div>
@@ -104,9 +104,22 @@
                                         <div class="card h-100 border">
                                             <img src="{{ $ebook->coverImageUrl() }}" alt="{{ $ebook->title }}" class="card-img-top" style="height: 220px; object-fit: cover;" onerror="this.onerror=null;this.src='{{ asset('frontend/assets/images/books-to-go-placeholder.svg') }}';">
                                             <div class="card-body d-flex flex-column">
-                                                <h4 class="fs-18"><a href="{{ route('ebooks.show', $ebook->slug) }}">{{ $ebook->title }}</a></h4>
+                                                <span class="badge badge-light mb-2 align-self-start">
+                                                    {{ $ebook->status ? 'Available Now' : 'Included In Bundle' }}
+                                                </span>
+                                                <h4 class="fs-18">
+                                                    @if($ebook->status)
+                                                        <a href="{{ route('ebooks.show', $ebook->slug) }}">{{ $ebook->title }}</a>
+                                                    @else
+                                                        {{ $ebook->title }}
+                                                    @endif
+                                                </h4>
                                                 <p class="text-muted mb-3">{{ $ebook->author ?? 'Unknown author' }}</p>
-                                                <a href="{{ route('ebooks.show', $ebook->slug) }}" class="btn btn-sm theme-btn mt-auto">View Book</a>
+                                                @if($ebook->status)
+                                                    <a href="{{ route('ebooks.show', $ebook->slug) }}" class="btn btn-sm theme-btn mt-auto">View Book</a>
+                                                @else
+                                                    <span class="btn btn-sm btn-outline-secondary mt-auto disabled" aria-disabled="true">Bundle Item</span>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
@@ -118,9 +131,7 @@
                     <div class="card card-item">
                         <div class="card-body">
                             <h3 class="widget-title mb-3">Bundle Download</h3>
-                            <p class="text-muted mb-0">
-                                This collection is delivered as a direct download package instead of separate book records.
-                            </p>
+                            <p class="text-muted mb-0">{{ $collection->deliverableDescription() }}</p>
                         </div>
                     </div>
                 @endif

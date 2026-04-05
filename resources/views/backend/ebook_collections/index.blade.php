@@ -36,7 +36,7 @@
                         <label>Source Folder Path or Public Drive URL</label>
                         <input type="text" name="source_path" class="form-control" value="{{ old('source_path', $importSuggestedPath ?? 'storage/app/imports/bundle-collections') }}" required>
                         <small class="text-muted d-block mt-2">
-                            You can use either a local server folder path or a public Google Drive folder URL. Each ZIP or child folder becomes one bundle collection.
+                            You can use either a local server folder path or a public Google Drive folder URL. Each ZIP, supported file, or top-level child folder becomes one bundle collection.
                         </small>
                     </div>
 

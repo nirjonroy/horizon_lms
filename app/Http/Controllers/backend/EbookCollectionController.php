@@ -45,6 +45,20 @@ class EbookCollectionController extends Controller
         set_time_limit(0);
 
         try {
+            $duplicateCheck = $importer->detectDuplicateSourceImport((string) $data['source_path']);
+            if ($duplicateCheck['is_duplicate'] ?? false) {
+                $message = 'This Google Drive URL appears to have been imported already.';
+
+                if (! empty($duplicateCheck['matching_names'])) {
+                    $message .= ' Matching bundles: ' . implode(', ', $duplicateCheck['matching_names']) . '.';
+                }
+
+                return redirect()
+                    ->route('admin.ebook-collections.index')
+                    ->withInput()
+                    ->with('warning', $message);
+            }
+
             $result = $importer->importFromSource((string) $data['source_path'], $data);
         } catch (\Throwable $e) {
             return redirect()
@@ -61,6 +75,14 @@ class EbookCollectionController extends Controller
 
         if (! empty($result['errors'])) {
             $message .= ' Issues: ' . implode(' ', array_slice($result['errors'], 0, 5));
+        }
+
+        if (($duplicateCheck['has_overlap'] ?? false) && ! ($duplicateCheck['is_duplicate'] ?? false)) {
+            $message .= sprintf(
+                ' %d existing bundle%s matched and may have been updated.',
+                (int) ($duplicateCheck['duplicate_count'] ?? 0),
+                ((int) ($duplicateCheck['duplicate_count'] ?? 0)) === 1 ? '' : 's'
+            );
         }
 
         return redirect()
