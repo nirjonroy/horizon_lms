@@ -97,7 +97,10 @@
     <div class="col-md-7">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Bundle Collections</h3>
+                <div class="d-flex flex-wrap align-items-center justify-content-between">
+                    <h3 class="card-title mb-2 mb-sm-0">Bundle Collections</h3>
+                    <a href="{{ route('admin.ebook-collections.export') }}" class="btn btn-outline-primary">Export CSV</a>
+                </div>
             </div>
             <div class="card-body table-responsive">
                 <table class="table table-bordered table-striped">

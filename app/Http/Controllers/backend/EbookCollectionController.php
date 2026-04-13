@@ -30,6 +30,76 @@ class EbookCollectionController extends Controller
         return view('backend.ebook_collections.index', compact('collections', 'ebooks', 'importSuggestedPath'));
     }
 
+    public function export()
+    {
+        $collections = EbookCollection::with(['ebooks:id,title', 'accessPlans:id,ebook_collection_id,name'])
+            ->withCount('ebooks')
+            ->orderByDesc('featured')
+            ->orderBy('sort_order')
+            ->orderBy('name')
+            ->get();
+
+        $columns = [
+            'id',
+            'name',
+            'slug',
+            'excerpt',
+            'description',
+            'cover_image',
+            'bundle_file',
+            'download_url',
+            'price',
+            'old_price',
+            'access_days',
+            'featured',
+            'sort_order',
+            'status',
+            'ebook_count',
+            'ebook_ids',
+            'ebook_titles',
+            'access_plan_names',
+            'created_at',
+            'updated_at',
+        ];
+
+        $filename = 'ebook_collections_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->stream(function () use ($collections, $columns) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, $columns);
+
+            foreach ($collections as $collection) {
+                fputcsv($handle, [
+                    $collection->id,
+                    $collection->name,
+                    $collection->slug,
+                    $collection->excerpt,
+                    $collection->description,
+                    $collection->cover_image,
+                    $collection->bundle_file,
+                    $collection->download_url,
+                    $collection->price,
+                    $collection->old_price,
+                    $collection->access_days,
+                    (int) $collection->featured,
+                    $collection->sort_order,
+                    (int) $collection->status,
+                    $collection->ebooks_count,
+                    $collection->ebooks->pluck('id')->implode('|'),
+                    $collection->ebooks->pluck('title')->implode(' | '),
+                    $collection->accessPlans->pluck('name')->implode(' | '),
+                    optional($collection->created_at)?->format('Y-m-d H:i:s'),
+                    optional($collection->updated_at)?->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
     public function import(Request $request, BundleCollectionImporter $importer)
     {
         $data = $request->validate([

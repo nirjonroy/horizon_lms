@@ -349,6 +349,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/permium-course-delete/{id}', [PremiumCourseController::class, 'destroy'])->name('courses.destroy');
 
     Route::get('/ebooks', [AdminEbookController::class, 'index'])->name('ebooks.index');
+    Route::get('/ebooks/export', [AdminEbookController::class, 'export'])->name('ebooks.export');
     Route::get('/ebooks/create', [AdminEbookController::class, 'create'])->name('ebooks.create');
     Route::post('/ebooks', [AdminEbookController::class, 'store'])->name('ebooks.store');
     Route::get('/ebooks/{ebook}/edit', [AdminEbookController::class, 'edit'])->name('ebooks.edit');
@@ -362,6 +363,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::delete('/ebook-categories/{ebookCategory}', [EbookCategoryController::class, 'destroy'])->name('ebook-categories.destroy');
 
     Route::get('/ebook-collections', [AdminEbookCollectionController::class, 'index'])->name('ebook-collections.index');
+    Route::get('/ebook-collections/export', [AdminEbookCollectionController::class, 'export'])->name('ebook-collections.export');
     Route::post('/ebook-collections', [AdminEbookCollectionController::class, 'store'])->name('ebook-collections.store');
     Route::post('/ebook-collections/import-folder', [AdminEbookCollectionController::class, 'import'])->name('ebook-collections.import');
     Route::get('/ebook-collections/{ebookCollection}/edit', [AdminEbookCollectionController::class, 'edit'])->name('ebook-collections.edit');

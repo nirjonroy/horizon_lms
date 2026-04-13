@@ -23,6 +23,104 @@ class EbookController extends Controller
         return view('backend.ebooks.index', compact('ebooks'));
     }
 
+    public function export()
+    {
+        $ebooks = Ebook::with(['category', 'collections'])
+            ->latest('published_at')
+            ->latest('id')
+            ->get();
+
+        $columns = [
+            'id',
+            'title',
+            'slug',
+            'category_id',
+            'category_name',
+            'author',
+            'isbn',
+            'language',
+            'pages',
+            'format',
+            'price',
+            'old_price',
+            'external_url',
+            'download_url',
+            'excerpt',
+            'description',
+            'cover_image',
+            'ebook_file',
+            'source_product_id',
+            'source_url',
+            'meta_title',
+            'meta_description',
+            'meta_image',
+            'seo_author',
+            'publisher',
+            'copyright',
+            'site_name',
+            'keywords',
+            'robots',
+            'published_at',
+            'status',
+            'collection_ids',
+            'collection_names',
+            'created_at',
+            'updated_at',
+        ];
+
+        $filename = 'ebooks_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->stream(function () use ($ebooks, $columns) {
+            $handle = fopen('php://output', 'w');
+            fputcsv($handle, $columns);
+
+            foreach ($ebooks as $ebook) {
+                fputcsv($handle, [
+                    $ebook->id,
+                    $ebook->title,
+                    $ebook->slug,
+                    $ebook->category_id,
+                    optional($ebook->category)->name,
+                    $ebook->author,
+                    $ebook->isbn,
+                    $ebook->language,
+                    $ebook->pages,
+                    $ebook->format,
+                    $ebook->price,
+                    $ebook->old_price,
+                    $ebook->external_url,
+                    $ebook->download_url,
+                    $ebook->excerpt,
+                    $ebook->description,
+                    $ebook->cover_image,
+                    $ebook->ebook_file,
+                    $ebook->source_product_id,
+                    $ebook->source_url,
+                    $ebook->meta_title,
+                    $ebook->meta_description,
+                    $ebook->meta_image,
+                    $ebook->seo_author,
+                    $ebook->publisher,
+                    $ebook->copyright,
+                    $ebook->site_name,
+                    $ebook->keywords,
+                    $ebook->robots,
+                    optional($ebook->published_at)?->format('Y-m-d H:i:s'),
+                    (int) $ebook->status,
+                    $ebook->collections->pluck('id')->implode('|'),
+                    $ebook->collections->pluck('name')->implode(' | '),
+                    optional($ebook->created_at)?->format('Y-m-d H:i:s'),
+                    optional($ebook->updated_at)?->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($handle);
+        }, 200, [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ]);
+    }
+
     public function create()
     {
         $categories = EbookCategory::where('status', 1)

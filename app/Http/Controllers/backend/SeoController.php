@@ -13,6 +13,7 @@ class SeoController extends Controller
     
     public function seoSetup()
     {
+        SeoSetting::ensureConfiguredPages();
         $pages = SeoSetting::all();
         return view("backend.seo_setup", compact("pages"));
     }

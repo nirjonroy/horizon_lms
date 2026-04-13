@@ -7,6 +7,7 @@
             <h3 class="card-title mb-2 mb-sm-0">All E-Books</h3>
             <div class="d-flex flex-wrap align-items-center">
                 <a href="{{ route('admin.ebooks.create') }}" class="btn btn-success mr-2 mb-2 mb-sm-0">Add E-Book</a>
+                <a href="{{ route('admin.ebooks.export') }}" class="btn btn-outline-primary mr-2 mb-2 mb-sm-0">Export CSV</a>
                 <a href="{{ route('admin.ebook-categories.index') }}" class="btn btn-outline-secondary mr-2 mb-2 mb-sm-0">Manage Categories</a>
             </div>
         </div>

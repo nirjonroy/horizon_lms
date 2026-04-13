@@ -1,6 +1,66 @@
 @extends('frontend.app')
 
-@section('title', 'E-Book Bundle Collections')
+@php
+    $seoSettings = \App\Models\SeoSetting::forPage('ebook-collections');
+    $siteInfo = DB::table('site_information')->first();
+    $replacements = ['collection_name' => 'BooksToGo Bundle Collections'];
+    $normalizeUrl = function ($path) {
+        if (! $path) {
+            return null;
+        }
+
+        return filter_var($path, FILTER_VALIDATE_URL) ? $path : asset($path);
+    };
+
+    $defaultTitleTemplate = \App\Models\SeoSetting::defaultTemplate('ebook-collections', 'seo_title')
+        ?? '{collection_name} – Best eBook Bundle Online';
+    $defaultDescriptionTemplate = \App\Models\SeoSetting::defaultTemplate('ebook-collections', 'seo_description')
+        ?? 'Buy {collection_name} PDF eBooks with instant download. High-quality digital books at affordable prices. Start learning today.';
+    $seoTitle = \App\Models\SeoSetting::applyTemplate(optional($seoSettings)->seo_title ?? $defaultTitleTemplate, $replacements);
+    $seoDescription = \App\Models\SeoSetting::applyTemplate(optional($seoSettings)->seo_description ?? $defaultDescriptionTemplate, $replacements);
+    $keywordsArray = \App\Models\SeoSetting::decodeKeywords(optional($seoSettings)->keywords, $replacements);
+    $keywordsContent = ! empty($keywordsArray)
+        ? implode(', ', $keywordsArray)
+        : 'BooksToGo Bundle Collections, ebook bundle, pdf ebooks, digital books';
+    $firstCollection = method_exists($collections, 'items') ? collect($collections->items())->first() : null;
+    $rawMetaImage = optional($seoSettings)->image ?: ($firstCollection?->cover_image) ?: ($siteInfo->logo ?? null);
+    $metaImage = $normalizeUrl($rawMetaImage ?: ($firstCollection?->coverImageUrl()));
+    $siteName = optional($seoSettings)->site_name ?? ($siteInfo->title ?? config('app.name'));
+    $author = optional($seoSettings)->author ?? ($siteInfo->title ?? config('app.name'));
+    $publisher = optional($seoSettings)->publisher ?? $author;
+    $copyright = optional($seoSettings)->copyright ?? ($siteInfo->title ?? config('app.name'));
+    $favicon = $normalizeUrl($siteInfo->logo ?? null);
+@endphp
+
+@section('title', $seoTitle)
+@section('seos')
+    <meta name="robots" content="index, follow">
+    <meta name="title" content="{{ $seoTitle }}">
+    <meta name="description" content="{{ $seoDescription }}">
+    <meta name="keywords" content="{{ $keywordsContent }}">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDescription }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:type" content="website">
+    @if($metaImage)
+        <meta property="og:image" content="{{ $metaImage }}">
+    @endif
+    <meta name="author" content="{{ $author }}">
+    <meta name="publisher" content="{{ $publisher }}">
+    <meta name="copyright" content="{{ $copyright }}">
+    <link rel="canonical" href="{{ url()->current() }}">
+    @if($favicon)
+        <link rel="icon" type="image/png" sizes="32x32" href="{{ $favicon }}">
+    @endif
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDescription }}">
+    @if($metaImage)
+        <meta name="twitter:image" content="{{ $metaImage }}">
+    @endif
+@endsection
 
 @section('content')
 <section class="breadcrumb-area section-padding img-bg-2" style="padding: 50px 0;">
