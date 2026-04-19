@@ -62,6 +62,7 @@ class whereToStudyController extends Controller
         $whereToStudy->slug = $slugSource ? Str::slug($slugSource) : null;
         $whereToStudy->link = $request->link;
         $whereToStudy->short_description = $request->short_description;
+        $whereToStudy->long_description = $request->long_description;
         $whereToStudy->rated = $request->rated;
         $whereToStudy->global_network = $request->global_network;
         $whereToStudy->award = $request->award;
@@ -127,6 +128,7 @@ class whereToStudyController extends Controller
         $slugSource = $request->slug ?: $request->name;
         $whereToStudy->slug = $slugSource ? Str::slug($slugSource) : null;
         $whereToStudy->short_description = $request->short_description;
+        $whereToStudy->long_description = $request->long_description;
         $whereToStudy->link = $request->link;
         $whereToStudy->rated = $request->rated;
         $whereToStudy->global_network = $request->global_network;

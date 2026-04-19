@@ -46,6 +46,12 @@ class onlineFeeController extends Controller
             'link',
             'short_description',
             'long_description',
+            'meta_title',
+            'meta_description',
+            'keywords',
+            'canonical_url',
+            'author',
+            'publisher',
             'syllabus_pdf',
         ];
 
@@ -74,6 +80,12 @@ class onlineFeeController extends Controller
                     $fee->link,
                     $fee->short_description,
                     $fee->long_description,
+                    $fee->meta_title,
+                    $fee->meta_description,
+                    $fee->keywords,
+                    $fee->canonical_url,
+                    $fee->author,
+                    $fee->publisher,
                     $fee->syllabus_pdf,
                 ]);
             }
@@ -174,6 +186,12 @@ class onlineFeeController extends Controller
             $fee->link = $this->normalizeCsvValue($data['link'] ?? null) ?? $fee->link;
             $fee->short_description = $this->normalizeCsvValue($data['short_description'] ?? null) ?? $fee->short_description;
             $fee->long_description = $this->normalizeCsvValue($data['long_description'] ?? null) ?? $fee->long_description;
+            $fee->meta_title = $this->normalizeCsvValue($data['meta_title'] ?? null) ?? $fee->meta_title;
+            $fee->meta_description = $this->normalizeCsvValue($data['meta_description'] ?? null) ?? $fee->meta_description;
+            $fee->keywords = $this->normalizeCsvValue($data['keywords'] ?? null) ?? $fee->keywords;
+            $fee->canonical_url = $this->normalizeCsvValue($data['canonical_url'] ?? null) ?? $fee->canonical_url;
+            $fee->author = $this->normalizeCsvValue($data['author'] ?? null) ?? $fee->author;
+            $fee->publisher = $this->normalizeCsvValue($data['publisher'] ?? null) ?? $fee->publisher;
             $fee->syllabus_pdf = $this->normalizeCsvValue($data['syllabus_pdf'] ?? null) ?? $fee->syllabus_pdf;
 
             if ($degreeId !== null) {
@@ -227,6 +245,14 @@ class onlineFeeController extends Controller
     public function store(Request $request){
         $request->validate([
             'syllabus_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'short_description' => ['nullable', 'string'],
+            'long_description' => ['nullable', 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
+            'keywords' => ['nullable', 'string'],
+            'canonical_url' => ['nullable', 'string', 'max:2048'],
+            'author' => ['nullable', 'string', 'max:255'],
+            'publisher' => ['nullable', 'string', 'max:255'],
         ]);
 
         $fees = new onlineFee;
@@ -235,6 +261,14 @@ class onlineFeeController extends Controller
         $fees->type = $request->type;
         $fees->program = $request->program;
         $fees->short_name = $request->short_name;
+        $fees->short_description = $request->short_description;
+        $fees->long_description = $request->long_description;
+        $fees->meta_title = $request->meta_title;
+        $fees->meta_description = $request->meta_description;
+        $fees->keywords = $request->keywords;
+        $fees->canonical_url = $request->canonical_url;
+        $fees->author = $request->author;
+        $fees->publisher = $request->publisher;
         $fees->total_fee = $request->total_fee;
         $fees->yearly = $request->yearly;
         $fees->duration = $request->duration;
@@ -258,6 +292,14 @@ class onlineFeeController extends Controller
     {
         $request->validate([
             'syllabus_pdf' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'short_description' => ['nullable', 'string'],
+            'long_description' => ['nullable', 'string'],
+            'meta_title' => ['nullable', 'string', 'max:255'],
+            'meta_description' => ['nullable', 'string'],
+            'keywords' => ['nullable', 'string'],
+            'canonical_url' => ['nullable', 'string', 'max:2048'],
+            'author' => ['nullable', 'string', 'max:255'],
+            'publisher' => ['nullable', 'string', 'max:255'],
         ]);
 
         $fees = onlineFee::find($id);
@@ -267,6 +309,14 @@ class onlineFeeController extends Controller
                 $fees->type = $request->type;
                 $fees->program = $request->program;
                 $fees->short_name = $request->short_name;
+                $fees->short_description = $request->short_description;
+                $fees->long_description = $request->long_description;
+                $fees->meta_title = $request->meta_title;
+                $fees->meta_description = $request->meta_description;
+                $fees->keywords = $request->keywords;
+                $fees->canonical_url = $request->canonical_url;
+                $fees->author = $request->author;
+                $fees->publisher = $request->publisher;
                 $fees->total_fee = $request->total_fee;
                 $fees->yearly = $request->yearly;
                 $fees->duration = $request->duration;

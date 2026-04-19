@@ -71,12 +71,12 @@
 
                 <div class="form-group">
                     <label for="shortDescription">Short description</label>
-                    <textarea class="form-control" id="shortDescription" name="short_description" rows="3" placeholder="Short summary shown on the program page">{{ old('short_description') }}</textarea>
+                    <textarea class="form-control textarea" id="shortDescription" name="short_description" rows="3" placeholder="Short summary shown on the program page">{{ old('short_description') }}</textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="longDescription">Long description</label>
-                    <textarea class="form-control" id="longDescription" name="long_description" rows="6" placeholder="Detailed program overview">{{ old('long_description') }}</textarea>
+                    <textarea class="form-control textarea" id="longDescription" name="long_description" rows="6" placeholder="Detailed program overview">{{ old('long_description') }}</textarea>
                 </div>
 
                 <div class="form-group">
@@ -103,6 +103,39 @@
                 <div class="form-group">
                     <label for="exampleInputName"> Duration  </label>
                     <input type="text" class="form-control" id="exampleInputEmail1" placeholder="Duration" name="duration">
+                </div>
+
+                <hr>
+                <h5 class="mb-3">SEO Information</h5>
+
+                <div class="form-group">
+                    <label for="metaTitle">Meta Title</label>
+                    <input type="text" class="form-control" id="metaTitle" name="meta_title" value="{{ old('meta_title') }}" placeholder="Meta title for search engines">
+                </div>
+
+                <div class="form-group">
+                    <label for="metaDescription">Meta Description</label>
+                    <textarea class="form-control" id="metaDescription" name="meta_description" rows="3" placeholder="Meta description for search engines">{{ old('meta_description') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="keywords">Keywords</label>
+                    <input type="text" class="form-control" id="keywords" name="keywords" value="{{ old('keywords') }}" placeholder="keyword 1, keyword 2, keyword 3">
+                </div>
+
+                <div class="form-group">
+                    <label for="canonicalUrl">Canonical URL</label>
+                    <input type="text" class="form-control" id="canonicalUrl" name="canonical_url" value="{{ old('canonical_url') }}" placeholder="https://example.com/university/program/program-slug">
+                </div>
+
+                <div class="form-group">
+                    <label for="author">Author</label>
+                    <input type="text" class="form-control" id="author" name="author" value="{{ old('author') }}" placeholder="Author name">
+                </div>
+
+                <div class="form-group">
+                    <label for="publisher">Publisher</label>
+                    <input type="text" class="form-control" id="publisher" name="publisher" value="{{ old('publisher') }}" placeholder="Publisher name">
                 </div>
 
 

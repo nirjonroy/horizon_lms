@@ -179,6 +179,16 @@
                 </div>
             </div>
         @endforeach
+
+        @if(!empty($studies->long_description))
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-muted rich-text-content mb-0">
+                        {!! $studies->long_description !!}
+                    </div>
+                </div>
+            </div>
+        @endif
     </div>
 </section>
 

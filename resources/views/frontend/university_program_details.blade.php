@@ -43,31 +43,29 @@
         ['label' => 'Global Network', 'value' => $cleanValue($studies->global_network ?? null)],
         ['label' => 'Rated', 'value' => $cleanValue($studies->rated ?? null)],
     ])->filter(fn ($item) => filled($item['value']))->values();
+    $SeoSettings = DB::table('seo_settings')->where('id', 1)->first();
+    $siteInfo = DB::table('site_information')->first();
+    $metaTitle = $program->meta_title ?: ($programTitle . ' | ' . $studies->name);
+    $metaDescription = \Illuminate\Support\Str::limit(strip_tags((string) ($program->meta_description ?: ($summary ?: ($SeoSettings->seo_description ?? '')))), 160);
+    $metaKeywords = trim((string) ($program->keywords ?? ''));
+    $canonicalUrl = $program->canonical_url ?: url()->current();
+    $metaAuthor = $program->author ?: (data_get($studies, 'meta_author') ?: ($SeoSettings->author ?? ($siteInfo->title ?? config('app.name'))));
+    $metaPublisher = $program->publisher ?: (data_get($studies, 'meta_publisher') ?: ($SeoSettings->publisher ?? $metaAuthor));
 @endphp
 
-@section('title', $programTitle . ' | ' . $studies->name)
+@section('title', $metaTitle)
 @section('seos')
-    @php
-        $SeoSettings = DB::table('seo_settings')->where('id', 1)->first();
-        $siteInfo = DB::table('site_information')->first();
-        $metaTitle = $programTitle . ' | ' . $studies->name;
-        $metaDescription = $summary ?: ($SeoSettings->seo_description ?? '');
-        $metaAuthor = data_get($studies, 'meta_author');
-        $metaPublisher = data_get($studies, 'meta_publisher');
-        $seoAuthor = $metaAuthor ?? ($SeoSettings->author ?? ($siteInfo->title ?? config('app.name')));
-        $seoPublisher = $metaPublisher ?? ($SeoSettings->publisher ?? $seoAuthor);
-    @endphp
-
     <meta charset="UTF-8">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <meta name="title" content="{{ $metaTitle }}">
     <meta name="description" content="{{ $metaDescription }}">
-    <meta name="author" content="{{ $seoAuthor }}">
-    <meta name="publisher" content="{{ $seoPublisher }}">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <meta name="keywords" content="{{ $metaKeywords }}">
+    <meta name="author" content="{{ $metaAuthor }}">
+    <meta name="publisher" content="{{ $metaPublisher }}">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     <meta property="og:title" content="{{ $metaTitle }}">
     <meta property="og:description" content="{{ $metaDescription }}">
-    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
     <meta property="og:site_name" content="{{ $studies->name }}">
     <meta property="og:image" content="{{ $heroImage }}">
     <meta property="og:locale" content="en_US">
@@ -241,28 +239,6 @@
                     </div>
                 </div>
 
-                @if($programOverview)
-                    <div class="card border-0 shadow-sm rounded-4 mb-4">
-                        <div class="card-body p-4 p-md-5">
-                            <h2 class="h4 fw-bold text-primary mb-3">Program overview</h2>
-                            <div class="text-muted">
-                                {!! $programOverview !!}
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
-                @if($programDetails)
-                    <div class="card border-0 shadow-sm rounded-4 mb-4">
-                        <div class="card-body p-4 p-md-5">
-                            <h2 class="h4 fw-bold text-primary mb-3">Program details</h2>
-                            <div class="text-muted rich-text-content">
-                                {!! $programDetails !!}
-                            </div>
-                        </div>
-                    </div>
-                @endif
-
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4 p-md-5">
                         <h2 class="h4 fw-bold text-primary mb-3">About {{ $studies->name }}</h2>
@@ -313,6 +289,22 @@
                             <a href="{{ $applyUrl }}" class="btn theme-btn" {!! $applyAttrs !!}>Apply Now</a>
                             <a href="{{ route('apply.now') }}" class="btn btn-outline-primary">Start application</a>
                         </div>
+
+                        @if($programOverview || $programDetails)
+                            <div class="border-top mt-4 pt-4">
+                                @if($programOverview)
+                                    <div class="text-muted rich-text-content">
+                                        {!! $programOverview !!}
+                                    </div>
+                                @endif
+
+                                @if($programDetails)
+                                    <div class="text-muted rich-text-content {{ $programOverview ? 'mt-4' : '' }}">
+                                        {!! $programDetails !!}
+                                    </div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
